@@ -1,0 +1,9 @@
+OAuth 2.0 for Perl
+
+Here are some high level design ideas that have been banging around in my head (nothing concrete yet):
+
+- use Moose;
+- provide higher-level API that encapsulates a Client or Server (something like Net::OAuth::Simple or the Ruby OAuth2 gem), while continuing to make the guts accessible to people who need the lower-level functions.
+- validate inputs like Net::OAuth does, but perhaps do this in a more friendly way, with the goal of reducing confusion, and making it easier for OAuth newbies to get up and running quickly.
+- make it easy to extend
+- anticipate future revisions of the protocol (like 1.0 - > 1.0a) an provide a common-sense way to migrate.
