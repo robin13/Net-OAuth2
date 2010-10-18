@@ -1,9 +1,55 @@
-OAuth 2.0 for Perl
+Net-OAuth2
 
-Here are some high level design ideas that have been banging around in my head (nothing concrete yet):
+The README is used to introduce the module and provide instructions on
+how to install the module, any machine dependencies it may have (for
+example C compilers and installed libraries) and any other information
+that should be provided before the module is installed.
 
-- use Moose;
-- provide higher-level API that encapsulates a Client or Server (something like Net::OAuth::Simple or the Ruby OAuth2 gem), while continuing to make the guts accessible to people who need the lower-level functions.
-- validate inputs like Net::OAuth does, but perhaps do this in a more friendly way, with the goal of reducing confusion, and making it easier for OAuth newbies to get up and running quickly.
-- make it easy to extend
-- anticipate future revisions of the protocol (like 1.0 - > 1.0a) an provide a common-sense way to migrate.
+A README file is required for CPAN modules since CPAN extracts the README
+file from a module distribution so that people browsing the archive
+can use it to get an idea of the module's uses. It is usually a good idea
+to provide version information here so that people can decide whether
+fixes for the module are worth downloading.
+
+
+INSTALLATION
+
+To install this module, run the following commands:
+
+	perl Build.PL
+	./Build
+	./Build test
+	./Build install
+
+SUPPORT AND DOCUMENTATION
+
+After installing, you can find documentation for this module with the
+perldoc command.
+
+    perldoc Net::OAuth2
+
+You can also look for information at:
+
+    RT, CPAN's request tracker
+        http://rt.cpan.org/NoAuth/Bugs.html?Dist=Net-OAuth2
+
+    AnnoCPAN, Annotated CPAN documentation
+        http://annocpan.org/dist/Net-OAuth2
+
+    CPAN Ratings
+        http://cpanratings.perl.org/d/Net-OAuth2
+
+    Search CPAN
+        http://search.cpan.org/dist/Net-OAuth2/
+
+
+LICENSE AND COPYRIGHT
+
+Copyright (C) 2010 Keith Grennan
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of either: the GNU General Public License as published
+by the Free Software Foundation; or the Artistic License.
+
+See http://dev.perl.org/licenses/ for more information.
+

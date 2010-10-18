@@ -1,0 +1,6 @@
+do{ my $x = {
+       'MANIFEST.SKIP' => 1,
+       'blib' => 1,
+       'Net-OAuth2-*' => 1
+     };
+$x; }
