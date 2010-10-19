@@ -2,18 +2,27 @@ package Net::OAuth2::Client;
 use warnings;
 use strict;
 use base qw(Class::Accessor);
-__PACKAGE__->mk_accessors(qw/id secret user_agent options web_server site/);
+__PACKAGE__->mk_accessors(qw/id secret user_agent site/);
 use LWP::UserAgent;
 use URI;
-use URI::QueryParams;
+use Net::OAuth2::Profile::WebServer;
 
 sub new {
   my $class = shift;
+  my $client_id = shift;
+  my $client_secret = shift;
   my %opts = @_;
   $opts{user_agent} ||= LWP::UserAgent->new;
   _ensure_uri_object($opts{site}) if defined $opts{site};
-  my $self = bless %opts, $class;
+  $opts{id} = $client_id;
+  $opts{secret} = $client_secret;
+  my $self = bless \%opts, $class;
   return $self;
+}
+
+sub web_server {
+	my $self = shift;
+	return Net::OAuth2::Profile::WebServer->new(client => $self);
 }
 
 sub _ensure_uri_object {
@@ -23,7 +32,6 @@ sub _ensure_uri_object {
 sub request {
   my $self = shift;
   my $response = $self->user_agent->request(@_);
-  
 }
 
 sub authorize_url {
@@ -37,8 +45,14 @@ sub access_token_url {
 sub _make_url {
   my $self = shift;
   my $thing = shift;
-  my %params = @_;
   my $path = $self->{"${thing}_url"} || $self->{"${thing}_path"} || "/oauth/${thing}";
+  return $self->site_url($path, @_);
+}
+
+sub site_url {
+  my $self = shift;
+  my $path = shift;
+  my %params = @_;
   my $url;
   if (defined $self->{site}) {
     $url = URI->new_abs($path, $self->{site});
@@ -47,7 +61,7 @@ sub _make_url {
     $url = URI->new($path);
   }
   if (@_) {
-    $url->query_form({%{$url->query_form}, %params});
+    $url->query_form({%{$url->query_form || {}}, %params});
   }
   return $url;
 }

@@ -7,7 +7,7 @@ __PACKAGE__->mk_accessors(qw/client/);
 sub new {
   my $class = shift;
   my %opts = @_;
-  my $self = bless %opts, $class;
+  my $self = bless \%opts, $class;
   return $self;
 }
 

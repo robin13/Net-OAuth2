@@ -4,6 +4,8 @@ use strict;
 use base qw(Net::OAuth2::Profile::Base);
 use JSON;
 use URI;
+use Net::OAuth2::AccessToken;
+use HTTP::Request;
 
 sub authorize_params {
   my $self = shift;
@@ -16,12 +18,11 @@ sub get_access_token {
   my $self = shift;
   my $code = shift;
   my %req_params = @_;
-  my $response = $self->client->request(
-    'POST', 
-    $self->client->access_token_url($self->access_token_params($code, %req_params))
-  );
-  my $res_params = _parse_json($response);
-  $res_params->{client} = $this->client;
+  my $response = $self->client->request(HTTP::Request->new(
+    POST => $self->client->access_token_url($self->access_token_params($code, %req_params))
+  ));
+  my $res_params = _parse_json($response->decoded_content);
+  $res_params->{client} = $self->client;
   return Net::OAuth2::AccessToken->new(%$res_params);
 }
 
