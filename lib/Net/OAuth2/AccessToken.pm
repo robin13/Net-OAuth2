@@ -1,7 +1,7 @@
 package Net::OAuth2::AccessToken;
 use warnings;
 use strict;
-use base qw(Class::Accessor);
+use base qw(Class::Accessor::Fast);
 use JSON;
 __PACKAGE__->mk_accessors(qw/client access_token refresh_token expires_in expires_at scope/);
 

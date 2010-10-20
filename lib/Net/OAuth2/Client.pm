@@ -1,7 +1,7 @@
 package Net::OAuth2::Client;
 use warnings;
 use strict;
-use base qw(Class::Accessor);
+use base qw(Class::Accessor::Fast);
 __PACKAGE__->mk_accessors(qw/id secret user_agent site/);
 use LWP::UserAgent;
 use URI;
@@ -22,7 +22,7 @@ sub new {
 
 sub web_server {
 	my $self = shift;
-	return Net::OAuth2::Profile::WebServer->new(client => $self);
+	return Net::OAuth2::Profile::WebServer->new(client => $self, @_);
 }
 
 sub _ensure_uri_object {

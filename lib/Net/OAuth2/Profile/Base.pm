@@ -1,7 +1,7 @@
 package Net::OAuth2::Profile::Base;
 use warnings;
 use strict;
-use base qw(Class::Accessor);
+use base qw(Class::Accessor::Fast);
 __PACKAGE__->mk_accessors(qw/client/);
 
 sub new {

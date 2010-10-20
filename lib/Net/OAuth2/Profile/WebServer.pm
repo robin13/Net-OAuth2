@@ -7,10 +7,13 @@ use URI;
 use Net::OAuth2::AccessToken;
 use HTTP::Request;
 
+__PACKAGE__->mk_accessors(qw/redirect_uri/);
+
 sub authorize_params {
   my $self = shift;
   my %options = $self->SUPER::authorize_params(@_);
   $options{type} = 'web_server';
+  $options{redirect_uri} = $self->redirect_uri if defined $self->redirect_uri;
   return %options;
 }
 
@@ -32,6 +35,7 @@ sub access_token_params {
   my %options = $self->SUPER::access_token_params(@_);
   $options{type} = 'web_server';
   $options{code} = $code;
+  $options{redirect_uri} = $self->redirect_uri if defined $self->redirect_uri;
   return %options;
 }
 
