@@ -5,7 +5,7 @@ use Module::Build;
 my $builder = Module::Build->new(
     module_name         => 'Net::OAuth2',
     license             => 'perl',
-    dist_author         => q{Keith Grennan <keith@nearlyfree.org>},
+    dist_author         => q{Keith Grennan <kgrennan@cpan.org>},
     dist_version_from   => 'lib/Net/OAuth2.pm',
     build_requires => {
         'Test::More' => 0,
