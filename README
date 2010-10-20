@@ -9,7 +9,7 @@ cpan> install Net::OAuth2
 
 WEB SERVER EXAMPLE (Dancer)
 
-  # This example is simplified for illustrative purposes, see the complete code in demo/37signals
+  # This example is simplified for illustrative purposes, see the complete code in /demo
 
   use Dancer;
   use Net::OAuth2::Client;

@@ -1,0 +1,18 @@
+log: 'core'
+access_log: 1
+show_errors: 1
+sites:
+        37signals:
+                name: '37Signals'
+                client_id: ''
+                client_secret: ''
+                site: 'https://launchpad.37signals.com/'
+                authorize_path: '/authorization/new'
+                access_token_path: '/authorization/token'
+                protected_resource_path: '/authorization.xml'
+        facebook:
+                name: 'Facebook'
+                client_id: ''
+                client_secret: ''
+                site: 'https://graph.facebook.com'
+                protected_resource_path: '/me'

@@ -22,9 +22,12 @@ sub get_access_token {
   my $code = shift;
   my %req_params = @_;
   my $response = $self->client->request(HTTP::Request->new(
-    POST => $self->client->access_token_url($self->access_token_params($code, %req_params))
+    GET => $self->client->access_token_url($self->access_token_params($code, %req_params))
   ));
+  die "Fetch of access token failed: " . $response->status_line . ": " . $response->decoded_content unless $response->is_success;
   my $res_params = _parse_json($response->decoded_content);
+  $res_params = _parse_query_string($response->decoded_content) unless defined $res_params;
+  die "Unable to parse access token response '".substr($response->decoded_content, 0, 64)."'" unless defined $res_params;
   $res_params->{client} = $self->client;
   return Net::OAuth2::AccessToken->new(%$res_params);
 }
@@ -43,12 +46,12 @@ sub _parse_query_string {
   my $str = shift;
   my $uri = URI->new;
   $uri->query($str);
-  return $uri->query_form;
+  return {$uri->query_form};
 }
 
 sub _parse_json {
   my $str = shift;
-  my $obj = decode_json($str);
+  my $obj = eval{local $SIG{__DIE__}; decode_json($str)};
   return $obj;
 }
 

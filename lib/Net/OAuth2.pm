@@ -13,7 +13,7 @@ our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
-  # This example is simplified for illustrative purposes, see the complete code in demo/37signals
+  # This example is simplified for illustrative purposes, see the complete code in /demo
 
   use Dancer;
   use Net::OAuth2::Client;
