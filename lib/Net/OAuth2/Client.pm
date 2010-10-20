@@ -66,6 +66,14 @@ sub site_url {
   return $url;
 }
 
+=head1 NAME
+
+Net::OAuth2::Client - OAuth Client
+
+=head1 SEE ALSO
+
+L<Net::OAuth>
+
 =head1 LICENSE AND COPYRIGHT
 
 Copyright 2010 Keith Grennan.
@@ -75,7 +83,6 @@ under the terms of either: the GNU General Public License as published
 by the Free Software Foundation; or the Artistic License.
 
 See http://dev.perl.org/licenses/ for more information.
-
 
 =cut
 

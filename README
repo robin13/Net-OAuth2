@@ -1,47 +1,53 @@
 Net-OAuth2
 
-The README is used to introduce the module and provide instructions on
-how to install the module, any machine dependencies it may have (for
-example C compilers and installed libraries) and any other information
-that should be provided before the module is installed.
-
-A README file is required for CPAN modules since CPAN extracts the README
-file from a module distribution so that people browsing the archive
-can use it to get an idea of the module's uses. It is usually a good idea
-to provide version information here so that people can decide whether
-fixes for the module are worth downloading.
-
+A Perl wrapper for the OAuth 2.0 specification. This is a work in progress, being built first to work with existing OAuth 2.0 endpoints (37 Signals, Facebook) with the goal of building it out to meet the entire specification over time.
 
 INSTALLATION
 
-To install this module, run the following commands:
+$ cpan
+cpan> install Net::OAuth2
 
-	perl Build.PL
-	./Build
-	./Build test
-	./Build install
+WEB SERVER EXAMPLE (Dancer)
 
-SUPPORT AND DOCUMENTATION
+  # This example is simplified for illustrative purposes, see the complete code in demo/37signals
 
-After installing, you can find documentation for this module with the
-perldoc command.
+  use Dancer;
+  use Net::OAuth2::Client;
 
-    perldoc Net::OAuth2
+  sub client {
+  	Net::OAuth2::Client->new(
+  		config->{client_id},
+  		config->{client_secret},
+  		site => 'https://launchpad.37signals.com/',
+  		authorize_path => '/authorization/new',
+  		access_token_path => '/authorization/token',
+  	)->web_server(redirect_uri => uri_for('/got/auth'));
+  }
 
-You can also look for information at:
+  # Send user to authorize with service provider
+  get '/get/auth' => sub {
+  	redirect client->authorize_url;
+  };
 
-    RT, CPAN's request tracker
-        http://rt.cpan.org/NoAuth/Bugs.html?Dist=Net-OAuth2
+  # User has returned with '?code=SOMETHING' appended to the URL.
+  get '/got/auth' => sub {
+    # Use the auth code to fetch the access token
+  	my $access_token =  client->get_access_token(params->{code});
+	
+  	# Use the access token to fetch a protected resource
+  	my $response = $access_token->get('/authorization.xml');
+	
+  	# Do something with said resource...
+	
+  	if ($response->is_success) {
+  	  return "Yay, it worked!!";
+  	}
+  	else {
+  	  return "Error: " . $response->status_line;
+  	}
+  };
 
-    AnnoCPAN, Annotated CPAN documentation
-        http://annocpan.org/dist/Net-OAuth2
-
-    CPAN Ratings
-        http://cpanratings.perl.org/d/Net-OAuth2
-
-    Search CPAN
-        http://search.cpan.org/dist/Net-OAuth2/
-
+  dance;
 
 LICENSE AND COPYRIGHT
 

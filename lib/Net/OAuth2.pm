@@ -5,94 +5,69 @@ use strict;
 
 =head1 NAME
 
-Net::OAuth2 - The great new Net::OAuth2!
-
-=head1 VERSION
-
-Version 0.01
+Net::OAuth2 - OAuth 2.0 for Perl
 
 =cut
 
 our $VERSION = '0.01';
 
-
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
+  # This example is simplified for illustrative purposes, see the complete code in demo/37signals
 
-Perhaps a little code snippet.
+  use Dancer;
+  use Net::OAuth2::Client;
 
-    use Net::OAuth2;
+  sub client {
+  	Net::OAuth2::Client->new(
+  		config->{client_id},
+  		config->{client_secret},
+  		site => 'https://launchpad.37signals.com/',
+  		authorize_path => '/authorization/new',
+  		access_token_path => '/authorization/token',
+  	)->web_server(redirect_uri => uri_for('/got/auth'));
+  }
 
-    my $foo = Net::OAuth2->new();
-    ...
+  # Send user to authorize with service provider
+  get '/get/auth' => sub {
+  	redirect client->authorize_url;
+  };
 
-=head1 EXPORT
+  # User has returned with '?code=SOMETHING' appended to the URL.
+  get '/got/auth' => sub {
+  	# Use the auth code to fetch the access token
+  	my $access_token =  client->get_access_token(params->{code});
+	
+  	# Use the access token to fetch a protected resource
+  	my $response = $access_token->get('/authorization.xml');
+	
+  	# Do something with said resource...
+	
+  	if ($response->is_success) {
+  	  return "Yay, it worked!!";
+  	}
+  	else {
+  	  return "Error: " . $response->status_line;
+  	}
+  };
 
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
+  dance;
 
-=head1 SUBROUTINES/METHODS
+=head1 RESOURCES
 
-=head2 function1
+View Source on GitHub: http://github.com/keeth/Net-OAuth2
 
-=cut
+Report Issues on GitHub: http://github.com/keeth/Net-OAuth2/issues
 
-sub function1 {
-}
-
-=head2 function2
-
-=cut
-
-sub function2 {
-}
+Download from CPAN: http://search.cpan.org/perldoc?Net::OAuth2
 
 =head1 AUTHOR
 
-Keith Grennan, C<< <keith at nearlyfree.org> >>
-
-=head1 BUGS
-
-Please report any bugs or feature requests to C<bug-net-oauth2 at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Net-OAuth2>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
-
-
-
-
-=head1 SUPPORT
-
-You can find documentation for this module with the perldoc command.
-
-    perldoc Net::OAuth2
-
-
-You can also look for information at:
-
-=over 4
-
-=item * RT: CPAN's request tracker
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Net-OAuth2>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/Net-OAuth2>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/Net-OAuth2>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/Net-OAuth2/>
-
-=back
-
+Keith Grennan, C<< <kgrennan at cpan.org> >>
 
 =head1 ACKNOWLEDGEMENTS
 
+Net::OAuth2 was initially ported from the oauth2 ruby gem by Michael Bleigh
 
 =head1 LICENSE AND COPYRIGHT
 
@@ -103,7 +78,6 @@ under the terms of either: the GNU General Public License as published
 by the Free Software Foundation; or the Artistic License.
 
 See http://dev.perl.org/licenses/ for more information.
-
 
 =cut
 

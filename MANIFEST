@@ -1,5 +1,9 @@
 Build.PL
 Changes
+demo/37signals/.htaccess
+demo/37signals/app.psgi
+demo/37signals/config.yml
+demo/37signals/dispatch.cgi
 ignore.txt
 lib/Net/OAuth2.pm
 lib/Net/OAuth2/AccessToken.pm
@@ -9,7 +13,8 @@ lib/Net/OAuth2/Profile/WebServer.pm
 MANIFEST
 README
 t/00-load.t
-t/boilerplate.t
 t/manifest.t
 t/pod-coverage.t
 t/pod.t
+Makefile.PL
+META.yml
