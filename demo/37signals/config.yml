@@ -1,0 +1,4 @@
+log: 'core'
+access_log: 1
+show_errors: 1
+
