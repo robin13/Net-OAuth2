@@ -31,7 +31,7 @@ WEB SERVER EXAMPLE (Dancer)
 
   # User has returned with '?code=SOMETHING' appended to the URL.
   get '/got/auth' => sub {
-    # Use the auth code to fetch the access token
+  	# Use the auth code to fetch the access token
   	my $access_token =  client->get_access_token(params->{code});
 	
   	# Use the access token to fetch a protected resource
