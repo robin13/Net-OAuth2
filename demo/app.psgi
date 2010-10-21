@@ -13,6 +13,7 @@ sub client {
 		site => config->{sites}{$site_id}{site},
 		authorize_path => config->{sites}{$site_id}{authorize_path},
 		access_token_path => config->{sites}{$site_id}{access_token_path},
+		access_token_method => config->{sites}{$site_id}{access_token_method},
 	)->web_server(redirect_uri => fix_uri(uri_for("/got/$site_id")));
 }
 

@@ -13,7 +13,6 @@ sub new {
   my $client_secret = shift;
   my %opts = @_;
   $opts{user_agent} ||= LWP::UserAgent->new;
-  _ensure_uri_object($opts{site}) if defined $opts{site};
   $opts{id} = $client_id;
   $opts{secret} = $client_secret;
   my $self = bless \%opts, $class;
@@ -23,10 +22,6 @@ sub new {
 sub web_server {
 	my $self = shift;
 	return Net::OAuth2::Profile::WebServer->new(client => $self, @_);
-}
-
-sub _ensure_uri_object {
-    $_[0] = UNIVERSAL::isa($_[0], 'URI') ? $_[0] : URI->new($_[0]);
 }
 
 sub request {
@@ -40,6 +35,10 @@ sub authorize_url {
 
 sub access_token_url {
   return shift->_make_url("access_token", @_);
+}
+
+sub access_token_method {
+  return shift->{access_token_method} || 'GET';
 }
 
 sub _make_url {

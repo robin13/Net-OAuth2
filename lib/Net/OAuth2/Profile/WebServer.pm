@@ -22,7 +22,7 @@ sub get_access_token {
   my $code = shift;
   my %req_params = @_;
   my $response = $self->client->request(HTTP::Request->new(
-    GET => $self->client->access_token_url($self->access_token_params($code, %req_params))
+    $self->client->access_token_method => $self->client->access_token_url($self->access_token_params($code, %req_params))
   ));
   die "Fetch of access token failed: " . $response->status_line . ": " . $response->decoded_content unless $response->is_success;
   my $res_params = _parse_json($response->decoded_content);

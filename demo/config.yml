@@ -9,6 +9,7 @@ sites:
                 site: 'https://launchpad.37signals.com/'
                 authorize_path: '/authorization/new'
                 access_token_path: '/authorization/token'
+                access_token_method: 'POST'
                 protected_resource_path: '/authorization.xml'
         facebook:
                 name: 'Facebook'
