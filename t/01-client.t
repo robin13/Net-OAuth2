@@ -2,18 +2,18 @@
 use strict;
 use warnings;
 
-use Test::More tests => 5;
-#use Test::Mock::LWP::Dispatch;
+use Test::More tests => 1 + 2*4;
+use Test::Mock::LWP::Dispatch;
 
 
-#$mock_ua->map(qr{.*}, sub {
-#	my $request = shift;
+$mock_ua->map(qr{.*}, sub {
+	my $request = shift;
 # https://graph.facebook.com/oauth/access_token....
 # die $request->uri;
 
-#	my $response = HTTP::Response->new;
-#	return $response;
-#});
+	my $response = HTTP::Response->new(200, 'OK');
+	return $response;
+});
 
 BEGIN {
     use_ok( 'Net::OAuth2::Client' ) || BAIL_OUT('compilation'); 
@@ -39,8 +39,14 @@ foreach my $site_id (keys %{$config->{sites}}) {
 	is (client($site_id)->authorize_url, $expected_result{$site_id}{authorize_url}, "authorize_url of $site_id");
 	is (client($site_id)->access_token_url, $expected_result{$site_id}{access_token_url}, "access_token_url of $site_id");
 	my $code = "abcd";
-	#my $access_token =  client($site_id)->get_access_token($code);
-	#isa_ok($access_token, 'ab');
+	my $access_token =  client($site_id)->get_access_token($code);
+	isa_ok($access_token, 'Net::OAuth2::AccessToken');
+	diag $access_token->to_string;
+        my $response = $access_token->get($config->{sites}{$site_id}{protected_resource_path});
+	ok($response->is_success, 'success');
+
+        #$response = $access_token->get('/path?field=value');
+	#ok($response->is_success, 'success');
 }
 
 sub client {
