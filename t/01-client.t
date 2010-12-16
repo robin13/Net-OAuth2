@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 1 + 2*4;
+use Test::More tests => 1 + 2*5;
 use Test::Mock::LWP::Dispatch;
 
 
@@ -45,8 +45,8 @@ foreach my $site_id (keys %{$config->{sites}}) {
         my $response = $access_token->get($config->{sites}{$site_id}{protected_resource_path});
 	ok($response->is_success, 'success');
 
-        #$response = $access_token->get('/path?field=value');
-	#ok($response->is_success, 'success');
+        $response = $access_token->get('/path?field=value');
+	ok($response->is_success, 'success');
 }
 
 sub client {
