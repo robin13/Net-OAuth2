@@ -60,7 +60,7 @@ sub site_url {
     $url = URI->new($path);
   }
   if (@_) {
-    $url->query_form({%{$url->query_form || {}}, %params});
+    $url->query_form($url->query_form , %params);
   }
   return $url;
 }
