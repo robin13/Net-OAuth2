@@ -31,6 +31,7 @@ WEB SERVER EXAMPLE (Dancer)
 
   # User has returned with '?code=foo' appended to the URL.
   get '/auth/facebook/callback' => sub {
+  
   	# Use the auth code to fetch the access token
   	my $access_token =  client->get_access_token(params->{code});
 

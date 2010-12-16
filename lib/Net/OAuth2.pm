@@ -9,7 +9,7 @@ Net::OAuth2 - OAuth 2.0 for Perl
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.03';
 
 =head1 SYNOPSIS
 
@@ -35,6 +35,7 @@ our $VERSION = '0.01';
 
   # User has returned with '?code=foo' appended to the URL.
   get '/auth/facebook/callback' => sub {
+  
   	# Use the auth code to fetch the access token
   	my $access_token =  client->get_access_token(params->{code});
 	
