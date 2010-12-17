@@ -10,6 +10,7 @@ my $builder = Module::Build->new(
     build_requires => {
         'Test::More' => 0,
         'Test::Mock::LWP::Dispatch' => 0,
+        'YAML' => 0,
     },
     requires => {
         'Class::Accessor' => '0.31',

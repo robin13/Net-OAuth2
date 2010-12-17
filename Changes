@@ -8,3 +8,6 @@ Revision history for Net-OAuth2
 
 0.03    Thu, 16 Dec 2010 16:58:37 UTC
         Merged fix for client->site_url, from github.com/szabgab
+
+0.04    Fri, 17 Dec 2010 02:04:31 UTC
+        Add missing build require (YAML)
