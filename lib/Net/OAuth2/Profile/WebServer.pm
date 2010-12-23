@@ -35,7 +35,7 @@ sub get_access_token {
 sub access_token_params {
   my $self = shift;
   my $code = shift;
-  my %options = $self->SUPER::access_token_params(@_);
+  my %options = $self->SUPER::access_token_params($code, @_);
   $options{type} = 'web_server';
   $options{code} = $code;
   $options{redirect_uri} = $self->redirect_uri if defined $self->redirect_uri;
