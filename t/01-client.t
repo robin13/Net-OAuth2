@@ -4,6 +4,7 @@ use warnings;
 
 use Test::More;
 use Test::Mock::LWP::Dispatch;
+use Test::NoWarnings;
 
 my %expected_result = (
 	'facebook' => {
@@ -35,8 +36,14 @@ my %expected_result = (
                                  'code='],
 	},
 );
+my %params = (
+	'facebook' => ['scope' => 'read-write'],
+        '37signals' => [],
+);
+
+
 my @sites = keys %expected_result;
-my $tests = 0;
+my $tests = 1; # no warnings;
 foreach my $site_id (@sites) {
     $tests += @{ $expected_result{$site_id}{authorize_url} } + @{ $expected_result{$site_id}{access_token_url} } + 3;
 }
@@ -69,7 +76,7 @@ foreach my $site_id (@sites) {
             like ($access_token_url, qr{$exp}, "access_token_url ($exp) of $site_id");
         }
 	my $code = "abcd";
-	my $access_token =  client($site_id)->get_access_token($code);
+	my $access_token =  client($site_id)->get_access_token($code, @{$params{$site_id}});
 	isa_ok($access_token, 'Net::OAuth2::AccessToken');
 	diag $access_token->to_string;
         my $response = $access_token->get($config->{sites}{$site_id}{protected_resource_path});

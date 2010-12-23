@@ -9,6 +9,7 @@ my $builder = Module::Build->new(
     dist_version_from   => 'lib/Net/OAuth2.pm',
     build_requires => {
         'Test::More' => 0,
+        'Test::NoWarnings' => 0,
         'Test::Mock::LWP::Dispatch' => 0,
         'YAML' => 0,
     },
