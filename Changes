@@ -7,7 +7,10 @@ Revision history for Net-OAuth2
         Added support for Facebook Graph API, made demo generic with support for both 37signals and Facebook
 
 0.03    Thu, 16 Dec 2010 16:58:37 UTC
-        Merged fix for client->site_url, from github.com/szabgab
+        Merged fix for client->site_url (https://github.com/keeth/Net-OAuth2/pull/1)
 
 0.04    Fri, 17 Dec 2010 02:04:31 UTC
         Add missing build require (YAML)
+
+0.05    Thu, 23 Dec 2010 18:24:30 UTC
+        Merged param warning fix (https://github.com/keeth/Net-OAuth2/pull/2)
