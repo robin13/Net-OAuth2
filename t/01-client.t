@@ -35,10 +35,25 @@ my %expected_result = (
                                  'type=web_server',
                                  'code='],
 	},
+      'mixi' => {
+              authorize_url => [
+                                'https://mixi.jp/connect_authorize.pl',
+                                'redirect_uri=http%3A%2F%2Fcpan.org%2Fgot%2Fmixi',
+                                'client_id=',
+                                'type=web_server'],
+              access_token_url => [
+                                'https://secure.mixi-platform.com/2/token',
+                                'redirect_uri=http%3A%2F%2Fcpan.org%2Fgot%2Fmixi',
+                                'client_secret=',
+                                'client_id=',
+                                'type=web_server',
+                                'code='],
+      },
 );
 my %params = (
 	'facebook' => ['scope' => 'read-write'],
         '37signals' => [],
+'mixi' => ['scope' => 'r_profile'],
 );
 
 
@@ -95,6 +110,8 @@ sub client {
 		authorize_path => $config->{sites}{$site_id}{authorize_path},
 		access_token_path => $config->{sites}{$site_id}{access_token_path},
 		access_token_method => $config->{sites}{$site_id}{access_token_method},
+              authorize_url => $config->{sites}{$site_id}{authorize_url},
+              access_token_url => $config->{sites}{$site_id}{access_token_url},
 	)->web_server(redirect_uri => ("http://cpan.org/got/$site_id"));
 }
 

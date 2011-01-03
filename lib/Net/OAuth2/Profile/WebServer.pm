@@ -7,7 +7,7 @@ use URI;
 use Net::OAuth2::AccessToken;
 use HTTP::Request;
 
-__PACKAGE__->mk_accessors(qw/redirect_uri/);
+__PACKAGE__->mk_accessors(qw/redirect_uri grant_type/);
 
 sub authorize_params {
   my $self = shift;
@@ -39,6 +39,7 @@ sub access_token_params {
   $options{type} = 'web_server';
   $options{code} = $code;
   $options{redirect_uri} = $self->redirect_uri if defined $self->redirect_uri;
+  $options{grant_type} = $self->grant_type if defined $self->grant_type;
   return %options;
 }
 

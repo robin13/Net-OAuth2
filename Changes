@@ -14,3 +14,6 @@ Revision history for Net-OAuth2
 
 0.05    Thu, 23 Dec 2010 18:24:30 UTC
         Merged param warning fix (https://github.com/keeth/Net-OAuth2/pull/2)
+
+0.06    Mon, 03 Jan 2011 18:49:06 UTC
+        Merged grant_type param (https://github.com/keeth/Net-OAuth2/issues#issue/3)
