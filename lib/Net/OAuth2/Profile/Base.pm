@@ -19,6 +19,7 @@ sub authorize_url {
 sub authorize_params {
   my $self = shift;
   my %options = @_;
+  $options{scope} = $self->client->scope unless defined $options{scope};
   $options{client_id} = $self->client->id unless defined $options{client_id};
   return %options;
 }

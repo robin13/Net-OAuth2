@@ -2,7 +2,7 @@ package Net::OAuth2::Client;
 use warnings;
 use strict;
 use base qw(Class::Accessor::Fast);
-__PACKAGE__->mk_accessors(qw/id secret user_agent site/);
+__PACKAGE__->mk_accessors(qw/id secret user_agent site scope/);
 use LWP::UserAgent;
 use URI;
 use Net::OAuth2::Profile::WebServer;
@@ -38,7 +38,7 @@ sub access_token_url {
 }
 
 sub access_token_method {
-  return shift->{access_token_method} || 'GET';
+  return shift->{access_token_method} || 'POST';
 }
 
 sub _make_url {

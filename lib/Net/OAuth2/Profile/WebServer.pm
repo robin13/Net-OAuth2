@@ -5,7 +5,7 @@ use base qw(Net::OAuth2::Profile::Base);
 use JSON;
 use URI;
 use Net::OAuth2::AccessToken;
-use HTTP::Request;
+use HTTP::Request::Common;
 
 __PACKAGE__->mk_accessors(qw/redirect_uri grant_type/);
 
@@ -13,6 +13,7 @@ sub authorize_params {
   my $self = shift;
   my %options = $self->SUPER::authorize_params(@_);
   $options{type} = 'web_server';
+  $options{response_type} = 'code';
   $options{redirect_uri} = $self->redirect_uri if defined $self->redirect_uri;
   return %options;
 }
@@ -21,9 +22,16 @@ sub get_access_token {
   my $self = shift;
   my $code = shift;
   my %req_params = @_;
-  my $response = $self->client->request(HTTP::Request->new(
-    $self->client->access_token_method => $self->client->access_token_url($self->access_token_params($code, %req_params))
-  ));
+
+  my $request;
+  if ($self->client->access_token_method eq 'POST') {
+    $request = POST($self->client->access_token_url(), {$self->access_token_params($code, %req_params)});
+  } else {
+    $request = HTTP::Request->new(
+      $self->client->access_token_method => $self->client->access_token_url($self->access_token_params($code, %req_params))
+  );
+  }
+  my $response = $self->client->request($request);
   die "Fetch of access token failed: " . $response->status_line . ": " . $response->decoded_content unless $response->is_success;
   my $res_params = _parse_json($response->decoded_content);
   $res_params = _parse_query_string($response->decoded_content) unless defined $res_params;
@@ -38,8 +46,8 @@ sub access_token_params {
   my %options = $self->SUPER::access_token_params($code, @_);
   $options{type} = 'web_server';
   $options{code} = $code;
+  $options{grant_type} = 'authorization_code';
   $options{redirect_uri} = $self->redirect_uri if defined $self->redirect_uri;
-  $options{grant_type} = $self->grant_type if defined $self->grant_type;
   return %options;
 }
 
