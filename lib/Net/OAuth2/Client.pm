@@ -2,7 +2,7 @@ package Net::OAuth2::Client;
 use warnings;
 use strict;
 use base qw(Class::Accessor::Fast);
-__PACKAGE__->mk_accessors(qw/id secret user_agent site scope/);
+__PACKAGE__->mk_accessors(qw/id secret user_agent site scope access_token_param/);
 use LWP::UserAgent;
 use URI;
 use Net::OAuth2::Profile::WebServer;
@@ -15,6 +15,7 @@ sub new {
   $opts{user_agent} ||= LWP::UserAgent->new;
   $opts{id} = $client_id;
   $opts{secret} = $client_secret;
+  $opts{access_token_param} ||= 'access_token';
   my $self = bless \%opts, $class;
   return $self;
 }

@@ -28,7 +28,7 @@ sub request {
   my $self = shift;
   my ($method, $uri, $header, $content) = @_;
   return $self->client->request(HTTP::Request->new(
-    $method => $self->client->site_url($uri, access_token => $self->access_token), $header, $content
+    $method => $self->client->site_url($uri, $self->client->access_token_param => $self->access_token), $header, $content
   ));
 }
 
