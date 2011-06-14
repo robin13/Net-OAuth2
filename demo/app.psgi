@@ -14,6 +14,8 @@ sub client {
 		authorize_path => config->{sites}{$site_id}{authorize_path},
 		access_token_path => config->{sites}{$site_id}{access_token_path},
 		access_token_method => config->{sites}{$site_id}{access_token_method},
+		access_token_param => config->{sites}{$site_id}{access_token_param},
+		scope => config->{sites}{$site_id}{scope}
 	)->web_server(redirect_uri => fix_uri(uri_for("/got/$site_id")));
 }
 
@@ -26,7 +28,7 @@ get '/got/:site_id' => sub {
 	my $access_token =  client(params->{site_id})->get_access_token(params->{code});
 	return wrap("Error: " . $access_token->to_string) if ($access_token->{error});
 	my $content = '<h2>Access token retrieved successfully!</h2><p>' . encode_entities($access_token->to_string) . '</p>';
-	my $response = $access_token->get(config->{sites}{params->{site_id}}{protected_resource_path});
+	my $response = $access_token->get(config->{sites}{params->{site_id}}{protected_resource_url} || config->{sites}{params->{site_id}}{protected_resource_path});
 	if ($response->is_success) {
 		$content .= '<h2>Protected resource retrieved successfully!</h2><p>' . encode_entities($response->decoded_content) . '</p>';
 	}
