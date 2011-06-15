@@ -12,9 +12,10 @@ __PACKAGE__->mk_accessors(qw/redirect_uri grant_type/);
 sub authorize_params {
   my $self = shift;
   my %options = $self->SUPER::authorize_params(@_);
-  $options{type} = 'web_server';
   $options{response_type} = 'code';
   $options{redirect_uri} = $self->redirect_uri if defined $self->redirect_uri;
+  # legacy for pre v2.09 (37Signals)
+  $options{type} = 'web_server';
   return %options;
 }
 
@@ -44,10 +45,11 @@ sub access_token_params {
   my $self = shift;
   my $code = shift;
   my %options = $self->SUPER::access_token_params($code, @_);
-  $options{type} = 'web_server';
   $options{code} = $code;
   $options{grant_type} = 'authorization_code';
   $options{redirect_uri} = $self->redirect_uri if defined $self->redirect_uri;
+  # legacy for pre v2.09 (37Signals)
+  $options{type} = 'web_server';
   return %options;
 }
 
