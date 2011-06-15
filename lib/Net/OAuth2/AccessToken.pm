@@ -31,11 +31,12 @@ sub request {
   my ($method, $uri, $header, $content) = @_;
   my $request = HTTP::Request->new(
     $method => $self->client->site_url($uri), $header, $content
-  );  
+  );
+  # We assume a bearer token type, but could extend to other types in the future
   my $bearer_token_scheme = $self->client->bearer_token_scheme;
   my @bearer_token_scheme = split ':', $bearer_token_scheme;
   if (lc($bearer_token_scheme[0]) eq 'auth-header') {
-    # Specs suggest Bearer or OAuth2 for this value, but OAuth appears to be the de facto accepted value.
+    # Specs suggest using Bearer or OAuth2 for this value, but OAuth appears to be the de facto accepted value.
     # Going to use OAuth until there is wide acceptance of something else.
     my $auth_scheme = $bearer_token_scheme[1] || 'OAuth';
     $request->headers->push_header(Authorization => $auth_scheme . " " . $self->access_token);
