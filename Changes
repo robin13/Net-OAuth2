@@ -28,3 +28,7 @@ Revision history for Net-OAuth2
           client constructor as access_token_param => 'oauth_token'.
         * Changed the default access_token_method to POST from GET
         * Added a Google demo to the demo app that's included with the module package ( hosted at http://oauth2.kg23.com ).
+        
+0.08    Wed, 15 Jun 2011 18:15:00 UTC
+        Add bearer_token_scheme parameter to support the various techniques in
+        https://tools.ietf.org/html/draft-ietf-oauth-v2-bearer-02

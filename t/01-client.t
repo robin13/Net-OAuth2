@@ -6,6 +6,8 @@ use Test::More;
 use Test::Mock::LWP::Dispatch;
 use Test::NoWarnings;
 
+
+
 my %expected_result = (
 	'facebook' => {
 		authorize_url => [
@@ -68,8 +70,10 @@ $mock_ua->map(qr{.*}, sub {
        my $request = shift;
 # https://graph.facebook.com/oauth/access_token....
 # die $request->uri;
-
        my $response = HTTP::Response->new(200, 'OK');
+       if (defined $request->content and $request->content =~ /\bcode=/) {
+         $response->add_content('access_token=abcd&token_type=bearer');
+       }
        return $response;
 });
 
@@ -93,7 +97,7 @@ foreach my $site_id (@sites) {
 	my $code = "abcd";
 	my $access_token =  client($site_id)->get_access_token($code, @{$params{$site_id}});
 	isa_ok($access_token, 'Net::OAuth2::AccessToken');
-	diag $access_token->to_string;
+#	diag $access_token->to_string;
         my $response = $access_token->get($config->{sites}{$site_id}{protected_resource_path});
 	ok($response->is_success, 'success');
 

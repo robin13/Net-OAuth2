@@ -9,7 +9,7 @@ Net::OAuth2 - OAuth 2.0 for Perl
 
 =cut
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 =head1 SYNOPSIS
 
