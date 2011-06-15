@@ -33,9 +33,7 @@ sub request {
 }
 
 sub get {
-	my $res = shift->request('GET', @_);
-	print STDERR $res->request->uri, "\n";
-	return $res;
+	return shift->request('GET', @_);
 }
 
 sub post {
