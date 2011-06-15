@@ -1,6 +1,6 @@
 Net-OAuth2
 
-A Perl wrapper for the OAuth 2.0 specification. This is a work in progress, being built first to work with existing OAuth 2.0 endpoints (37 Signals, Facebook) with the goal of building it out to meet the entire specification over time.
+A Perl wrapper for the OAuth 2.0 specification. This is a work in progress, being built first to work with existing OAuth 2.0 endpoints (37 Signals, Facebook, Google) with the goal of building it out to meet the entire specification over time.
 
 INSTALLATION
 

@@ -19,4 +19,4 @@ Revision history for Net-OAuth2
         Merged grant_type param (https://github.com/keeth/Net-OAuth2/issues#issue/3)
 
 0.07    Mon, 03 Jan 2011 18:49:06 UTC
-        Spec V2.16 / Google compatibility
+        Spec V2.15 / Google compatibility
