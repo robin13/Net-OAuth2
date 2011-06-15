@@ -20,3 +20,11 @@ Revision history for Net-OAuth2
 
 0.07    Mon, 03 Jan 2011 18:49:06 UTC
         Spec V2.15 / Google compatibility
+        * Add scope param to Client
+        * Always include grant_type param
+        * Have POST request send params in body rather than URL query string
+        * Allow user to specify name of access token query param in protected resource requests, 
+          since Google calls it oauth_token rather than access_token.  This can be passed to the 
+          client constructor as access_token_param => 'oauth_token'.
+        * Changed the default access_token_method to POST from GET
+        * Added a Google demo to the demo app that's included with the module package ( hosted at http://oauth2.kg23.com ).
