@@ -1,8 +1,9 @@
 package Net::OAuth2::Client;
 use warnings;
 use strict;
+use Carp;
 use base qw(Class::Accessor::Fast);
-__PACKAGE__->mk_accessors(qw/id secret user_agent site scope bearer_token_scheme/);
+__PACKAGE__->mk_accessors(qw/id secret user_agent site scope bearer_token_scheme access_code/);
 use LWP::UserAgent;
 use URI;
 use Net::OAuth2::Profile::WebServer;
@@ -17,9 +18,35 @@ sub new {
     $opts{secret}               =   $client_secret;
     $opts{user_agent}           ||= LWP::UserAgent->new;
     $opts{bearer_token_scheme}  ||= 'auth-header';
-
+    
     my $self = bless \%opts, $class;
     return $self;
+}
+
+sub access_token {
+    my $self = shift;
+    if( $self->{access_token} ){
+        return $self->{access_token};
+    }
+
+    # Refresh token is the most important
+    if( $self->{refresh_token} ){
+        $self->{access_token} = Net::OAuth2::AccessToken->new( 
+            refresh_token   => $self->{refresh_token},
+            client          => $self,
+            );
+        return $self->{access_token};
+    }
+
+    my $profile = $self->{profile} || 'application';
+    
+    if( $profile eq 'application' and not $self->access_code ){
+        croak( "Please authorize your application with this URL, and start again with the parameter access_code\n" .
+            $self->$profile->authorize_uri() );
+    }
+
+    $self->{access_token} = $self->$profile->get_access_token;
+    return $self->{access_token};
 }
 
 sub application {

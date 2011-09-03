@@ -61,14 +61,12 @@ sub request {
 sub valid_access_token {
     my $self = shift;
     
-    if( $self->access_token and $self->expires_at > time() ){
+    if( $self->access_token and $self->expires_at and $self->expires_at > time() ){
         return $self->access_token;
     }
 
     # This is knitted specifically to Googles OAuth2 implementation - is it universal?
-    my $headers = HTTP::Headers->new(
-        Content_Type  => 'application/x-www-form-urlencoded',
-        );
+    my $headers = HTTP::Headers->new( Content_Type  => 'application/x-www-form-urlencoded'  );
     my $content = sprintf( "client_id=%s&" .
         "client_secret=%s&" .
         "refresh_token=%s&" .
