@@ -1,24 +1,21 @@
 package Net::OAuth2::AccessToken;
-use warnings;
-use strict;
-use base qw(Class::Accessor::Fast);
+use Moose;
+use Moose::Util::TypeConstraints;
+
 use JSON;
 use Carp;
 use URI::Escape;
-__PACKAGE__->mk_accessors(qw/client access_token refresh_token expires_in expires_at scope token_type/);
 
-sub new {
-    my $class = shift;
-    my %opts = @_;
-    my $self = bless \%opts, $class;
-    if (defined $self->{expires_in} and $self->{expires_in} =~ /^\d+$/) {
-        $self->expires_at(time() + $self->{expires_in});
-    }
-    else {
-        delete $self->{expires_in};
-    }
-    return $self;
-}
+has 'client'        => ( is => 'ro',    isa => 'Net::OAuth2::Client'    , required => 1,    );
+has 'access_token'  => ( is => 'rw',    isa => 'Str'                                        );
+has 'refresh_token' => ( is => 'rw',    isa => 'Str'                                        );
+has 'token_type'    => ( is => 'rw',    isa => 'Str'                                        );
+has 'expires_at'    => ( is => 'rw',    isa => 'Int'                                        );
+has 'expires_in'    => ( is => 'rw',    isa => 'Int',
+    trigger => sub{ $_[0]->expires_at( time() + $_[1] ) },  # Trust the expires_in more than expires_at
+    # TODO: RCL 2011-09-05 Consider subtracting a safety-buffer here for data transfer time so that
+    # we always refresh the token before it expires
+    );
 
 # True if the token in question has an expiration time.
 sub expires {
@@ -33,8 +30,7 @@ sub request {
         $method => $self->client->site_url($uri), $header, $content
     );
     # We assume a bearer token type, but could extend to other types in the future
-    my $bearer_token_scheme = $self->client->bearer_token_scheme;
-    my @bearer_token_scheme = split ':', $bearer_token_scheme;
+    my @bearer_token_scheme = split ':', $self->client->bearer_token_scheme;
     if (lc($bearer_token_scheme[0]) eq 'auth-header') {
         # Specs suggest using Bearer or OAuth2 for this value, but OAuth appears to be the de facto accepted value.
         # Going to use OAuth until there is wide acceptance of something else.
@@ -90,12 +86,9 @@ sub valid_access_token {
         croak( "No access token found in data...\n" );
     }
     foreach( qw/access_token token_type expires_in/ ){
-        $self->{$_} = $obj->{$_} if $obj->{$_};
+        $self->$_( $obj->{$_} ) if $obj->{$_};
     }
-    if( $obj->{expires_in} ){
-        $self->{expires_at} = time + $obj->{expires_in};
-    }
-    return $self->{access_token};
+    return $self->access_token;
 }
 
 
@@ -118,7 +111,7 @@ sub put {
 sub to_string {
     my $self = shift;
     my %hash;
-    for (qw/access_token token_type refresh_token expires_in scope error error_desription error_uri state/) {
+    for (qw/access_token token_type refresh_token expires_in error error_desription error_uri state/) {
         $hash{$_} = $self->{$_} if defined $self->{$_};
     }
     return encode_json(\%hash);

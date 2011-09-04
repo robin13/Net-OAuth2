@@ -7,9 +7,13 @@ use strict;
 
 Net::OAuth2 - OAuth 2.0 for Perl
 
+=head1 VERSION
+
+0.09
+
 =cut
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 =head1 SYNOPSIS
 
@@ -65,6 +69,10 @@ Download from CPAN: http://search.cpan.org/perldoc?Net::OAuth2
 =head1 AUTHOR
 
 Keith Grennan, C<< <kgrennan at cpan.org> >>
+
+=head1 CONTRIBUTORS
+
+Robin Clarke
 
 =head1 ACKNOWLEDGEMENTS
 
