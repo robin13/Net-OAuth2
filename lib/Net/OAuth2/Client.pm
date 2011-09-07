@@ -43,18 +43,19 @@ use Moose::Util::TypeConstraints;
 
 subtype 'Url', as 'Str', where { is_uri( $_ ) };
 
-has 'id'                    => ( is => 'ro', isa => 'Str', required => 1                            );
-has 'secret'                => ( is => 'ro', isa => 'Str', required => 1                            );
-has 'scope'                 => ( is => 'ro', isa => 'Url', required => 1                            );
-has 'site_url_base'         => ( is => 'ro', isa => 'Url'                                           );
-has 'access_token_url_base' => ( is => 'ro', isa => 'Url'                                           );
-has 'authorize_url_base'    => ( is => 'ro', isa => 'Url'                                           );
-has 'refresh_token'         => ( is => 'ro', isa => 'Str'                                           );
-has 'access_token'          => ( is => 'ro', isa => 'Str'                                           );
-has 'access_code'           => ( is => 'ro', isa => 'Str'                                           );
-has 'access_token_method'   => ( is => 'ro', isa => 'Str', required => 1, default => 'POST'         );
-has 'bearer_token_scheme'   => ( is => 'ro', isa => 'Str', required => 1, default => 'auth-header'  );
-has 'profile'               => ( is => 'ro', isa => 'Str', required => 1, default => 'application'  );
+has 'id'                    => ( is => 'ro', isa => 'Str',                                           );
+has 'secret'                => ( is => 'ro', isa => 'Str',                                           );
+has 'scope'                 => ( is => 'ro', isa => 'Url',                                           );
+has 'site_url_base'         => ( is => 'ro', isa => 'Url',                                           );
+has 'access_token_url_base' => ( is => 'ro', isa => 'Url',                                           );
+has 'authorize_url_base'    => ( is => 'ro', isa => 'Url',                                           );
+has 'refresh_token'         => ( is => 'ro', isa => 'Str',                                           );
+has 'access_token'          => ( is => 'ro', isa => 'Str',                                           );
+has 'access_code'           => ( is => 'ro', isa => 'Str',                                           );
+has 'no_access_code_ok'     => ( is => 'ro', isa => 'Bool', required => 1, default => 0              );
+has 'access_token_method'   => ( is => 'ro', isa => 'Str',  required => 1, default => 'POST'         );
+has 'bearer_token_scheme'   => ( is => 'ro', isa => 'Str',  required => 1, default => 'auth-header'  );
+has 'profile'               => ( is => 'ro', isa => 'Str',  required => 1, default => 'application'  );
 has 'user_agent'            => ( is => 'ro', 
     isa => 'LWP::UserAgent',
     required    => 1,
@@ -67,6 +68,32 @@ has 'access_token_object'   => ( is => 'rw',
     builder     => '_build_access_token_object',
     lazy        => 1,
     );
+
+# Because a valid combination of parameters is not possible to define with 'has',
+# doing a more complex param check before new
+before 'new' => sub{
+    my $class = shift;
+    my %params = @_;
+    
+    my $found_valid = 0;
+    my @valid = ( 
+        [ qw/id secret no_access_code_ok site_url_base/ ],
+        [ qw/id secret access_code site_url_base/ ],
+        [ qw/access_token no_refresh_token_ok/ ],
+        [ qw/refresh_token site_url_base/ ],
+        );
+    FOUND_VALID:
+    foreach( @valid ){
+        my @test = @{ $_ };
+        if( scalar( grep{ $params{$_} } @test ) == scalar( @test ) ){
+            $found_valid = 1;
+            last FOUND_VALID;
+        }
+    }
+    if( not $found_valid ){
+        die( "Not initialised with a valid combination of parameters...\n" );
+    }
+};
 
 sub request {
     my $self = shift;
