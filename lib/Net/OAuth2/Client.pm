@@ -5,6 +5,14 @@ use Moose;
 
 Net::OAuth2::Client - OAuth Client
 
+=head1 VERSION
+
+0.09
+
+=cut
+
+our $VERSION = '0.09';
+
 =head1 SEE ALSO
 
 L<Net::OAuth>
