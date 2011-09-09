@@ -22,6 +22,7 @@ WriteMakefile(
         'Test::NoWarnings'		=> 0,
         'Test::Mock::LWP::Dispatch'	=> 0,
         'YAML'				=> 0,
+	'Crypt::SSLeay'			=> 0, # Easy way: libnet-ssleay-perl, else libssl-dev
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'Net-OAuth2-*' },

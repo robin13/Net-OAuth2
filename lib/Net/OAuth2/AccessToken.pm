@@ -82,7 +82,7 @@ sub valid_access_token {
     );
     my $response = $self->client->request( $request );
     if( not $response->is_success() ){
-        croak( "Could not refresh access token" );
+        croak( "Could not refresh access token: " . $response->code );
     }
     my $obj = eval{local $SIG{__DIE__}; decode_json($response->decoded_content)} || {};
     if( not $obj->{access_token} ){
