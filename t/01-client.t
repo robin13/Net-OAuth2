@@ -6,8 +6,6 @@ use Test::More;
 use Test::Mock::LWP::Dispatch;
 use Test::NoWarnings;
 
-
-
 my %expected_result = (
 	'facebook' => {
 		authorize_url => [
@@ -53,9 +51,14 @@ my %expected_result = (
       },
 );
 my %params = (
-	'facebook' => ['scope' => 'read-write'],
-        '37signals' => [],
-'mixi' => ['scope' => 'r_profile'],
+	'facebook'  => [
+	    'scope'	    => 'read-write',
+	    ],
+        '37signals' => [ 
+	    ],
+	'mixi' => [
+	    'scope'	    => 'r_profile',
+	    ],
 );
 
 
@@ -71,11 +74,11 @@ $mock_ua->map(qr{.*}, sub {
 # https://graph.facebook.com/oauth/access_token....
 # die $request->uri;
     my $response = HTTP::Response->new(200, 'OK');
-    if (defined $request->content and $request->content =~ /\bcode=/) {
-    $response->add_content('access_token=abcd&token_type=bearer');
+    if (defined $request->content and $request->content =~ /\b(code|refresh_token)=/) {
+	$response->add_content('{"access_token": "abcd","token_type":"bearer","refresh_token":"11_refresh_11"}');
     }
     return $response;
-    });
+});
 
 
 use Net::OAuth2::Client;
@@ -95,7 +98,7 @@ foreach my $site_id (@sites) {
     my $code = "abcd";
     my $access_token =  client($site_id)->get_access_token($code, @{$params{$site_id}});
     isa_ok($access_token, 'Net::OAuth2::AccessToken');
-#	diag $access_token->to_string;
+    #	diag $access_token->to_string;
     my $response = $access_token->get($config->{sites}{$site_id}{protected_resource_path});
     ok($response->is_success, 'success');
 
@@ -105,16 +108,8 @@ foreach my $site_id (@sites) {
 
 sub client {
     my $site_id = shift;
-    Net::OAuth2::Client->new(
-	id			=> $config->{sites}{$site_id}{client_id},
-	secret			=> $config->{sites}{$site_id}{client_secret},
-	site_url_base		=> $config->{sites}{$site_id}{site},
-	authorize_path		=> $config->{sites}{$site_id}{authorize_path},
-	access_token_path	=> $config->{sites}{$site_id}{access_token_path},
-	access_token_method	=> $config->{sites}{$site_id}{access_token_method},
-	authorize_url_base	=> $config->{sites}{$site_id}{authorize_url},
-	access_token_url_base	=> $config->{sites}{$site_id}{access_token_url},
-    )->web_server(redirect_uri => ("http://cpan.org/got/$site_id"));
+    Net::OAuth2::Client->new( %{ $config->{sites}{$site_id} } 
+	)->webserver(redirect_uri => ("http://cpan.org/got/$site_id"));
 }
 
 

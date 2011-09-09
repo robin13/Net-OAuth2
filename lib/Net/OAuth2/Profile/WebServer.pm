@@ -5,8 +5,9 @@ with 'Net::OAuth2::Profile::Base';
 use Carp;
 use Net::OAuth2::AccessToken;
 use HTTP::Request::Common;
+use MooseX::Types::URI qw(Uri FileUri DataUri);
 
-has 'redirect_uri'  => ( is => 'ro', isa => 'Url', required => 1 );
+has 'redirect_uri'  => ( is => 'ro', isa => Uri, coerce => 1, required => 1 );
 has 'grant_type'    => ( is => 'ro', isa => 'Str', required => 1, default => 'authorization_code' );
 
 before 'get_access_token' => sub{

@@ -17,7 +17,7 @@ WriteMakefile(
         'Data::Validate::URI'		=> 0,
         'URI'				=> 0,
         'Moose'				=> 0,
-        'Moose::Util::TypeConstraints'	=> 0,
+        'MooseX::Types::URI'		=> 0,
         'Test::NoWarnings'		=> 0,
         'Test::Mock::LWP::Dispatch'	=> 0,
         'YAML'				=> 0,

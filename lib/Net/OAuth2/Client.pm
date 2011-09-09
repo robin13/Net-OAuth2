@@ -36,19 +36,18 @@ See http://dev.perl.org/licenses/ for more information.
 use Carp;
 use LWP::UserAgent;
 use URI;
-use Data::Validate::URI qw/is_uri/;
 use Net::OAuth2::Profile::WebServer;
 use Net::OAuth2::Profile::Application;
-use Moose::Util::TypeConstraints;
-
-subtype 'Url', as 'Str', where { is_uri( $_ ) };
+use MooseX::Types::URI qw(Uri FileUri DataUri);
 
 has 'id'                    => ( is => 'ro', isa => 'Str',                                           );
 has 'secret'                => ( is => 'ro', isa => 'Str',                                           );
-has 'scope'                 => ( is => 'ro', isa => 'Url',                                           );
-has 'site_url_base'         => ( is => 'ro', isa => 'Url',                                           );
-has 'access_token_url_base' => ( is => 'ro', isa => 'Url',                                           );
-has 'authorize_url_base'    => ( is => 'ro', isa => 'Url',                                           );
+has 'scope'                 => ( is => 'ro', isa => Uri,     coerce => 1,                            );
+has 'site_url_base'         => ( is => 'ro', isa => Uri,     coerce => 1,                            );
+has 'access_token_url_base' => ( is => 'ro', isa => Uri,     coerce => 1,                            );
+has 'access_token_path'     => ( is => 'ro', isa => 'Str',                                           );
+has 'authorize_url_base'    => ( is => 'ro', isa => Uri,     coerce => 1,                            );
+has 'authorize_path'	    => ( is => 'ro', isa => 'Str',                                           );
 has 'refresh_token'         => ( is => 'ro', isa => 'Str',                                           );
 has 'access_token'          => ( is => 'ro', isa => 'Str',                                           );
 has 'access_code'           => ( is => 'ro', isa => 'Str',                                           );
@@ -69,6 +68,38 @@ has 'access_token_object'   => ( is => 'rw',
     lazy        => 1,
     );
 
+has 'webserver' => ( 
+    is		=> 'ro', 
+    writer	=> '_set_webserver',
+    predicate	=> '_has_webserver',
+    );
+
+has 'application' => ( 
+    is		=> 'ro', 
+    writer	=> '_set_application',
+    predicate	=> '_has_application',
+    );
+
+
+around webserver => sub {
+    my $orig = shift;
+    my $self = shift;
+    unless ($self->_has_webserver) {
+	$self->_set_webserver( Net::OAuth2::Profile::WebServer->new( client => $self, @_ ) );
+    }
+    return $self->$orig;
+};
+
+around application => sub {
+    my $orig = shift;
+    my $self = shift;
+    unless ($self->_has_application) {
+	$self->_set_application( Net::OAuth2::Profile::Application->new( client => $self, @_ ) );
+    }
+    return $self->$orig;
+};
+
+
 # Because a valid combination of parameters is not possible to define with 'has',
 # doing a more complex param check before new
 before 'new' => sub{
@@ -77,8 +108,7 @@ before 'new' => sub{
     
     my $found_valid = 0;
     my @valid = ( 
-        [ qw/id secret no_access_code_ok site_url_base/ ],
-        [ qw/id secret access_code site_url_base/ ],
+        [ qw/id secret site_url_base/ ],
         [ qw/access_token no_refresh_token_ok/ ],
         [ qw/refresh_token site_url_base/ ],
         );
@@ -92,10 +122,12 @@ before 'new' => sub{
     }
     if( not $found_valid ){
         use YAML;
-        die( Dump( \%params ) );
-        die( "Not initialised with a valid combination of parameters...\n" );
+#        die( Dump( \%params ) );
+        die( "Not initialised with a valid combination of parameters...\n" . Dump( \%params ) );
     }
 };
+
+
 
 sub request {
     my $self = shift;
@@ -147,22 +179,6 @@ sub site_url {
         $url->query_form($url->query_form , %params);
     }
     return $url;
-}
-
-sub webserver {
-    my $self = shift;
-    if( not $self->{_webserver} ){
-        $self->{_webserver} = Net::OAuth2::Profile::WebServer->new( client => $self, @_ );
-    }
-    return $self->{_webserver};
-}
-
-sub application {
-    my $self = shift;
-    if( not $self->{_application} ){
-        $self->{_application} = Net::OAuth2::Profile::Application->new( client => $self, @_ );
-    }
-    return $self->{_application};
 }
 
 sub _make_url {

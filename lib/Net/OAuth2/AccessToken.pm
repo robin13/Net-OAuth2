@@ -60,6 +60,9 @@ sub valid_access_token {
     if( $self->access_token and $self->expires_at and $self->expires_at > time() ){
         return $self->access_token;
     }
+    if( not $self->refresh_token ){
+	croak( "Cannot refresh access_token without refresh_token" );
+    }
 
     # This is knitted specifically to Googles OAuth2 implementation - is it universal?
     my $headers = HTTP::Headers->new( Content_Type  => 'application/x-www-form-urlencoded'  );
@@ -83,7 +86,7 @@ sub valid_access_token {
     }
     my $obj = eval{local $SIG{__DIE__}; decode_json($response->decoded_content)} || {};
     if( not $obj->{access_token} ){
-        croak( "No access token found in data...\n" );
+        croak( "No access token found in data...\n" . $response->decoded_content );
     }
     foreach( qw/access_token token_type expires_in/ ){
         $self->$_( $obj->{$_} ) if $obj->{$_};

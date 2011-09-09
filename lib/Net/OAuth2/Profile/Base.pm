@@ -3,6 +3,7 @@ use Moose::Role;
 use Carp;
 use JSON;
 use HTTP::Request::Common;
+use MooseX::Types::URI qw/Uri/;
 
 has 'client' => ( is => 'ro', isa => 'Net::OAuth2::Client', required => 1 );
 

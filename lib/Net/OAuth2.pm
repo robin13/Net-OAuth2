@@ -24,9 +24,9 @@ our $VERSION = '0.09';
 
   sub client {
   	Net::OAuth2::Client->new(
-  		config->{client_id},
-  		config->{client_secret},
-  		site => 'https://graph.facebook.com',
+  		id      => config->{client_id},
+  		secret  => config->{client_secret},
+  		site    => 'https://graph.facebook.com',
   	)->web_server(
   	  redirect_uri => uri_for('/auth/facebook/callback')
   	);
