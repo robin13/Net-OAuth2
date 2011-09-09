@@ -91,6 +91,8 @@ before 'new' => sub{
         }
     }
     if( not $found_valid ){
+        use YAML;
+        die( Dump( \%params ) );
         die( "Not initialised with a valid combination of parameters...\n" );
     }
 };
