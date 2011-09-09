@@ -1,4 +1,4 @@
-Build.PL
+Makefile.PL
 Changes
 demo/.htaccess
 demo/app.psgi
@@ -9,10 +9,10 @@ lib/Net/OAuth2.pm
 lib/Net/OAuth2/AccessToken.pm
 lib/Net/OAuth2/Client.pm
 lib/Net/OAuth2/Profile/Base.pm
+lib/Net/OAuth2/Profile/Application.pm
 lib/Net/OAuth2/Profile/WebServer.pm
 Makefile.PL
 MANIFEST
-META.yml
 README
 t/00-load.t
 t/01-client.t
