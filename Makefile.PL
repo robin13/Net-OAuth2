@@ -18,6 +18,7 @@ WriteMakefile(
         'URI'				=> 0,
         'Moose'				=> 0,
         'MooseX::Types::URI'		=> 0,
+	'JSON'				=> 0,
         'Test::NoWarnings'		=> 0,
         'Test::Mock::LWP::Dispatch'	=> 0,
         'YAML'				=> 0,
