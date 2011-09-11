@@ -55,11 +55,12 @@ has 'no_access_code_ok'     => ( is => 'ro', isa => 'Bool', required => 1, defau
 has 'access_token_method'   => ( is => 'ro', isa => 'Str',  required => 1, default => 'POST'         );
 has 'bearer_token_scheme'   => ( is => 'ro', isa => 'Str',  required => 1, default => 'auth-header'  );
 has 'profile'               => ( is => 'ro', isa => 'Str',  required => 1, default => 'application'  );
-has 'user_agent'            => ( is => 'ro', 
-    isa => 'LWP::UserAgent',
-    required    => 1,
-    lazy        => 1,
-    default     => sub{ LWP::UserAgent->new() },
+has 'keep_alive'            => ( is => 'ro', isa => 'Bool', required => 1, default => 0              );
+has 'user_agent'            => ( 
+    is          => 'ro', 
+    isa         => 'LWP::UserAgent',
+    writer      => '_set_user_agent',
+    predicate   => '_has_user_agent',
     );
 
 has 'access_token_object'   => ( is => 'rw',
@@ -70,18 +71,29 @@ has 'access_token_object'   => ( is => 'rw',
 
 has 'webserver' => ( 
     is		=> 'ro', 
+    isa         => 'Net::OAuth2::Profile::WebServer',
     writer	=> '_set_webserver',
     predicate	=> '_has_webserver',
     );
 
 has 'application' => ( 
     is		=> 'ro', 
+    isa         => 'Net::OAuth2::Profile::Application',
     writer	=> '_set_application',
     predicate	=> '_has_application',
     );
 
+around 'user_agent' => sub {
+    my $orig = shift;
+    my $self = shift;
+    unless( $self->_has_user_agent ){
+        $self->_set_user_agent( LWP::UserAgent->new( 'keep_alive' => $self->keep_alive ) );
+    }
+    return $self->$orig;
+};
 
-around webserver => sub {
+
+around 'webserver' => sub {
     my $orig = shift;
     my $self = shift;
     unless ($self->_has_webserver) {
@@ -90,7 +102,7 @@ around webserver => sub {
     return $self->$orig;
 };
 
-around application => sub {
+around 'application' => sub {
     my $orig = shift;
     my $self = shift;
     unless ($self->_has_application) {
