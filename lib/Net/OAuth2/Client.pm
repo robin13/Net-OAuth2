@@ -51,11 +51,12 @@ has 'authorize_path'	    => ( is => 'ro', isa => 'Str',                         
 has 'refresh_token'         => ( is => 'ro', isa => 'Str',                                           );
 has 'access_token'          => ( is => 'ro', isa => 'Str',                                           );
 has 'access_code'           => ( is => 'ro', isa => 'Str',                                           );
-has 'no_access_code_ok'     => ( is => 'ro', isa => 'Bool', required => 1, default => 0              );
+has 'token_store'           => ( is => 'ro', isa => 'Str',                                           );
 has 'access_token_method'   => ( is => 'ro', isa => 'Str',  required => 1, default => 'POST'         );
 has 'bearer_token_scheme'   => ( is => 'ro', isa => 'Str',  required => 1, default => 'auth-header'  );
 has 'profile'               => ( is => 'ro', isa => 'Str',  required => 1, default => 'application'  );
 has 'keep_alive'            => ( is => 'ro', isa => 'Bool', required => 1, default => 0              );
+
 has 'user_agent'            => ( 
     is          => 'ro', 
     isa         => 'LWP::UserAgent',
@@ -203,21 +204,21 @@ sub _make_url {
 sub _build_access_token_object {
     my $self = shift;
 
+    # Try to load an access token from the store first
     my $access_token = undef;
-    # Refresh token is the most important (with it we can always generate fresh access_token), but
-    # if we already have a valid access_token, we can just use that... We assume that the user
-    # knows that supplying a valid access_token but no refresh_token can only work for so long.
-    if( $self->refresh_token or $self->access_token ){
-        my %token_params = ( client => $self );
-        foreach( qw/access_token refresh_token/ ){
-            $token_params{$_} = $self->{$_} if $self->{$_};
-        }
-        $access_token = Net::OAuth2::AccessToken->new( %token_params );
-    }else{
+    my %token_params = ( client => $self );
+    foreach( qw/access_token refresh_token token_store/ ){
+        $token_params{$_} = $self->$_ if $self->$_;
+    }
+    $access_token = Net::OAuth2::AccessToken->new( %token_params );
+    $access_token->sync_with_store;
+
+    if( not $access_token->refresh_token ){
         my $profile = $self->profile;
         $access_token = $self->$profile->get_access_token( $self->access_code );
+        $access_token->sync_with_store();
     }
-    $access_token;
+    return $access_token;
 }
 
 1;

@@ -5,10 +5,12 @@ use Moose::Util::TypeConstraints;
 use JSON;
 use Carp;
 use URI::Escape;
+use YAML qw/LoadFile DumpFile/;
 
 has 'client'        => ( is => 'ro',    isa => 'Net::OAuth2::Client'    , required => 1,    );
 has 'access_token'  => ( is => 'rw',    isa => 'Str'                                        );
 has 'refresh_token' => ( is => 'rw',    isa => 'Str'                                        );
+has 'token_store'   => ( is => 'rw',    isa => 'Str'                                        );
 has 'token_type'    => ( is => 'rw',    isa => 'Str'                                        );
 has 'expires_at'    => ( is => 'rw',    isa => 'Int'                                        );
 has 'expires_in'    => ( is => 'rw',    isa => 'Int',
@@ -91,6 +93,7 @@ sub valid_access_token {
     foreach( qw/access_token token_type expires_in/ ){
         $self->$_( $obj->{$_} ) if $obj->{$_};
     }
+    $self->sync_with_store();
     return $self->access_token;
 }
 
@@ -114,10 +117,33 @@ sub put {
 sub to_string {
     my $self = shift;
     my %hash;
-    for (qw/access_token token_type refresh_token expires_in error error_desription error_uri state/) {
+    for (qw/access_token token_type refresh_token expires_in expires_at error error_desription error_uri state/) {
         $hash{$_} = $self->{$_} if defined $self->{$_};
     }
     return encode_json(\%hash);
+}
+
+sub sync_with_store {
+    my $self = shift;
+    if( not $self->token_store ){
+        print "No token_store defined\n";
+        return;
+    }
+    my $data;
+    if( -f $self->token_store ){
+        $data = LoadFile( $self->token_store );
+    }
+    if( my $old_node = $data->{ $self->client->id } ){
+        if( $old_node->{expires_at} and time() < $old_node->{expires_at} ){
+            $self->access_token( $old_node->{access_token} )    if $old_node->{access_token};
+            $self->expires_at( $old_node->{expires_at} )        if $old_node->{expires_at};
+        }
+        $self->refresh_token( $old_node->{refresh_token} ) if( not $self->refresh_token and $old_node->{refresh_token} );
+    }
+    foreach( qw/refresh_token access_token expires_at/ ){
+        $data->{ $self->client->id }->{$_} = $self->$_ if $self->$_;
+    }
+    DumpFile( $self->token_store, $data );
 }
 
 =head1 NAME

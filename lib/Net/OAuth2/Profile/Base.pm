@@ -6,6 +6,7 @@ use HTTP::Request::Common;
 use MooseX::Types::URI qw/Uri/;
 
 has 'client' => ( is => 'ro', isa => 'Net::OAuth2::Client', required => 1 );
+has 'interactive' => ( is => 'ro', isa => 'Bool', required => 1, default => 0 );
 
 sub get_access_token {
     my $self = shift;
@@ -29,7 +30,9 @@ sub get_access_token {
     if( not defined $res_params ){
         croak( "Unable to parse access token response '".substr($response->decoded_content, 0, 64)."'" );
     }
-    $res_params->{client} = $self->client;
+    # TODO: RCL 2011-09-17 This is dirty... improve!
+    $res_params->{client}       = $self->client;
+    $res_params->{token_store}  = $self->client->token_store;
     return Net::OAuth2::AccessToken->new(%$res_params);
 }
 

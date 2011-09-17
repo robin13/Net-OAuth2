@@ -6,12 +6,23 @@ use Carp;
 use Net::OAuth2::AccessToken;
 use HTTP::Request::Common;
 
-before 'get_access_token' => sub{
-    if( not $_[1] ){
-        printf "Please authorize your application with this URL, and start again with the parameter access_code\n%s\n",
-        $_[0]->_authorize_uri();
-        exit;
+has '+interactive' => ( default => 1 );
+
+around 'get_access_token' => sub{
+    my $orig = shift;
+    my $self = shift;
+    my $code = shift;
+    if( not $code ){
+        printf "Please authorize your application with this URL\n%s\n",
+            $self->_authorize_uri();
+        if( not $self->interactive ){
+            exit;
+        }
+        print "Code: ";
+        $code = <STDIN>;
+        chomp( $code );
     }
+    return $self->$orig( $code );
 };
 
 sub authorize_params {
