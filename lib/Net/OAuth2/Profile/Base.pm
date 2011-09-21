@@ -32,7 +32,7 @@ sub get_access_token {
     }
     # TODO: RCL 2011-09-17 This is dirty... improve!
     $res_params->{client}       = $self->client;
-    $res_params->{token_store}  = $self->client->token_store;
+    $res_params->{token_store}  = $self->client->token_store if $self->client->token_store;
     return Net::OAuth2::AccessToken->new(%$res_params);
 }
 
