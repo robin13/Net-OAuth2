@@ -126,7 +126,6 @@ around 'new' => sub {
     # e.g.
     # my $client = Net::OAuth2::Client->new( $client_id, $client_secret, %params );
     my @atts = $self->meta->get_attribute_list;
-    printf "Attributes: %s\n", join( ', ', @atts );
     if( 0 == scalar( grep { $args[0] eq $_ } @atts ) ){
         $params{id}      = shift( @args );
         $params{secret}  = shift( @args );
@@ -161,7 +160,7 @@ around 'new' => sub {
 #        die( Dump( \%params ) );
         die( "Not initialised with a valid combination of parameters...\n" . Dump( \%params ) );
     }
-    return $self->$orig( @_ );
+    return $self->$orig( %params );
 };
 
 
