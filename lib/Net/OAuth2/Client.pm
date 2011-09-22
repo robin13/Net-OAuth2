@@ -115,10 +115,33 @@ around 'application' => sub {
 
 # Because a valid combination of parameters is not possible to define with 'has',
 # doing a more complex param check before new
-before 'new' => sub{
-    my $class = shift;
-    my %params = @_;
-    
+around 'new' => sub {
+    my $orig = shift;
+    my $self = shift;
+    my @args = @_;
+
+    my %params;
+    # For backwards compatibility, id and secret may be passed as the first arguments, followed
+    # by other parameters
+    # e.g.
+    # my $client = Net::OAuth2::Client->new( $client_id, $client_secret, %params );
+    my @atts = $self->meta->get_attribute_list;
+    printf "Attributes: %s\n", join( ', ', @atts );
+    if( 0 == scalar( grep { $args[0] eq $_ } @atts ) ){
+        $params{id}      = shift( @args );
+        $params{secret}  = shift( @args );
+    }
+    %params = ( %params, @args );
+
+    # For backwards compatibility, client_id -> id, and client_secret -> secret
+    foreach my $key( qw/client_id client_secret/ ){
+        if( $params{$key} ){
+            $key =~ m/^client_(.+)$/;
+            $params{$1} = $params{$key};
+            delete( $params{$key} );
+        }
+    }
+
     my $found_valid = 0;
     my @valid = ( 
         [ qw/id secret site_url_base/ ],
@@ -138,6 +161,7 @@ before 'new' => sub{
 #        die( Dump( \%params ) );
         die( "Not initialised with a valid combination of parameters...\n" . Dump( \%params ) );
     }
+    return $self->$orig( @_ );
 };
 
 
