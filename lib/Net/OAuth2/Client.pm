@@ -7,11 +7,11 @@ Net::OAuth2::Client - OAuth Client
 
 =head1 VERSION
 
-0.09
+0.10
 
 =cut
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 =head1 SEE ALSO
 
@@ -141,6 +141,15 @@ before 'new' => sub{
 };
 
 
+sub get_fresh_access_token {
+    my $self = shift;
+
+    # Make it expire now
+    $self->access_token_object->expires_at( time() );
+
+    # Request a fresh access token
+    $self->access_token_object->valid_access_token();
+}
 
 sub request {
     my $self = shift;

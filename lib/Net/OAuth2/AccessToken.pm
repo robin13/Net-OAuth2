@@ -5,7 +5,7 @@ use Moose::Util::TypeConstraints;
 use JSON;
 use Carp;
 use URI::Escape;
-use YAML qw/LoadFile DumpFile/;
+use YAML qw/LoadFile DumpFile Dump/;
 
 has 'client'        => ( is => 'ro',    isa => 'Net::OAuth2::Client'    , required => 1,    );
 has 'access_token'  => ( is => 'rw',    isa => 'Str'                                        );
@@ -134,9 +134,13 @@ sub sync_with_store {
         $data = LoadFile( $self->token_store );
     }
     if( my $old_node = $data->{ $self->client->id } ){
-        if( $old_node->{expires_at} and time() < $old_node->{expires_at} ){
+        if( $old_node->{expires_at} 
+            and time() < $old_node->{expires_at} 
+            and ( 
+                not $self->expires_at or $self->expires_at < $old_node->{expires_at} ) )
+        {
+            $self->expires_at( $old_node->{expires_at} );
             $self->access_token( $old_node->{access_token} )    if $old_node->{access_token};
-            $self->expires_at( $old_node->{expires_at} )        if $old_node->{expires_at};
         }
         $self->refresh_token( $old_node->{refresh_token} ) if( not $self->refresh_token and $old_node->{refresh_token} );
     }
