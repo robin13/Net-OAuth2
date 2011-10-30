@@ -34,12 +34,18 @@ sub authorize_params {
 }
 
 sub access_token_params {
-    my $self = shift;
-    my $code = shift;
-    my %options = $self->generic_access_token_params($code, @_);
-    $options{code}            = $code;
-    $options{grant_type}      = 'authorization_code';  
-    $options{redirect_uri}    = 'urn:ietf:wg:oauth:2.0:oob';
+    my %options = @_;  
+    $options{client_id}         = $self->client_id     unless defined $options{client_id};
+    $options{client_secret}     = $self->client_secret unless defined $options{client_secret};
+    if( $self->profile eq 'webserver' ){
+        $options{grant_type}    ||= $self->grant_type;
+        $options{redirect_uri}  ||= $self->redirect_uri;
+        # legacy for pre v2.09 (37Signals)
+        $options{type}          =   'web_server';
+    } else {
+        $options{grant_type}        = 'authorization_code';  
+        $options{redirect_uri}      = 'urn:ietf:wg:oauth:2.0:oob';
+    }
     return %options;
 }
 
