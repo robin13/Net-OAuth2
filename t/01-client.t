@@ -81,35 +81,32 @@ $mock_ua->map(qr{.*}, sub {
 });
 
 
-use Net::OAuth2::Client;
+use Net::OAuth2::Moosey::Client;
 
 use YAML qw(LoadFile);
 my $config = LoadFile('demo/config.yml');
 
 foreach my $site_id (@sites) {
-    my $authorize_url = client($site_id)->authorize_url;
-    foreach my $exp (@{ $expected_result{$site_id}{authorize_url} }) {
-	like ($authorize_url, qr{$exp}, "authorize_url ($exp) of $site_id");
-    }
-    my $access_token_url = client($site_id)->access_token_url;
-    foreach my $exp (@{ $expected_result{$site_id}{access_token_url} }) {
-	like ($access_token_url, qr{$exp}, "access_token_url ($exp) of $site_id");
-    }
+    my $client = client( $site_id );
+    
     my $code = "abcd";
-    my $access_token =  client($site_id)->get_access_token($code, @{$params{$site_id}});
-    isa_ok($access_token, 'Net::OAuth2::AccessToken');
+    my $access_token =  client($site_id)->access_token->valid_access_token( @{$params{$site_id}});
+    
     #	diag $access_token->to_string;
-    my $response = $access_token->get($config->{sites}{$site_id}{protected_resource_path});
+    my $response = client($site_id)->get($config->{sites}{$site_id}{protected_resource_path});
     ok($response->is_success, 'success');
 
-    $response = $access_token->get('/path?field=value');
+    $response = client($site_id)->get('/path?field=value');
     ok($response->is_success, 'success');
 }
 
 sub client {
     my $site_id = shift;
-    Net::OAuth2::Client->new( %{ $config->{sites}{$site_id} } 
-	)->webserver(redirect_uri => ("http://cpan.org/got/$site_id"));
+    Net::OAuth2::Moosey::Client->new( %{ $config->{sites}{$site_id} },
+	redirect_uri		=> "http://cpan.org/got/$site_id",
+	access_token_method	=> 'GET',
+	profile			=> 'webserver',
+	);
 }
 
 

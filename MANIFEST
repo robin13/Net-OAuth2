@@ -5,12 +5,8 @@ demo/app.psgi
 demo/config.yml
 demo/dispatch.cgi
 ignore.txt
-lib/Net/OAuth2.pm
-lib/Net/OAuth2/AccessToken.pm
-lib/Net/OAuth2/Client.pm
-lib/Net/OAuth2/Profile/Base.pm
-lib/Net/OAuth2/Profile/Application.pm
-lib/Net/OAuth2/Profile/WebServer.pm
+lib/Net/OAuth2/Moosey/AccessToken.pm
+lib/Net/OAuth2/Moosey/Client.pm
 Makefile.PL
 MANIFEST
 README

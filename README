@@ -1,58 +1,15 @@
-Net-OAuth2
+Net-OAuth2-Moosey-Client
 
-A Perl wrapper for the OAuth 2.0 specification. This is a work in progress, being built first to work with existing OAuth 2.0 endpoints (37 Signals, Facebook, Google) with the goal of building it out to meet the entire specification over time.
+A Moosey Perl wrapper for the OAuth 2.0 specification.
 
 INSTALLATION
 
 $ cpan
-cpan> install Net::OAuth2
-
-WEB SERVER EXAMPLE (Dancer)
-
-  # This example is simplified for illustrative purposes, see the complete code in /demo
-
-  use Dancer;
-  use Net::OAuth2::Client;
-
-  sub client {
-  	Net::OAuth2::Client->new(
-  		config->{client_id},
-  		config->{client_secret},
-  		site => 'https://graph.facebook.com',
-  	)->web_server(
-  	  redirect_uri => uri_for('/auth/facebook/callback')
-  	);
-  }
-
-  # Send user to authorize with service provider
-  get '/auth/facebook' => sub {
-  	redirect client->authorize_url;
-  };
-
-  # User has returned with '?code=foo' appended to the URL.
-  get '/auth/facebook/callback' => sub {
-  
-  	# Use the auth code to fetch the access token
-  	my $access_token =  client->get_access_token(params->{code});
-
-  	# Use the access token to fetch a protected resource
-  	my $response = $access_token->get('/me');
-
-  	# Do something with said resource...
-
-  	if ($response->is_success) {
-  	  return "Yay, it worked: " . $response->decoded_content;
-  	}
-  	else {
-  	  return "Error: " . $response->status_line;
-  	}
-  };
-
-  dance;
+cpan> install Net::OAuth2::Moosey::Client
 
 LICENSE AND COPYRIGHT
 
-Copyright (C) 2010 Keith Grennan
+Copyright (C) 2011 Robin Clarke
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published

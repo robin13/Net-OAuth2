@@ -1,4 +1,4 @@
-package Net::OAuth2::Moose::AccessToken;
+package Net::OAuth2::Moosey::AccessToken;
 use Moose;
 use Moose::Util::TypeConstraints;
 
@@ -28,7 +28,6 @@ has 'expires_in'        => ( is => 'rw', isa => 'Int',
 # Returns a valid access token (refreshing if necessary)
 sub valid_access_token {
     my $self = shift;
-    
     if( $self->access_token and $self->expires_at and $self->expires_at > time() ){
         return $self->access_token;
     }
@@ -40,8 +39,8 @@ sub valid_access_token {
     my $headers = HTTP::Headers->new( Content_Type  => 'application/x-www-form-urlencoded'  );
     my $content = sprintf( "client_id=%s&" .
         "client_secret=%s&" .
-        "refresh_token=%s&" .
-        "grant_type=refresh_token",
+        "refresh_token=refresh_token" .
+        "grant_type=%s",
         $self->client_id,
         $self->client_secret,
         $self->refresh_token,
@@ -107,7 +106,7 @@ sub sync_with_store {
 
 =head1 NAME
 
-Net::OAuth2::AccessToken - OAuth Access Token
+Net::OAuth2::Moosey::AccessToken - OAuth Access Token
 
 =head1 SEE ALSO
 
