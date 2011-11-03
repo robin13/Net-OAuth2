@@ -1,13 +1,85 @@
 package Net::OAuth2::Moosey::AccessToken;
 use Moose;
-use Moose::Util::TypeConstraints;
+=head1 NAME
 
+Net::OAuth2::Moosey::AccessToken - OAuth 2.0 Access token object
+
+=head1 VERSION
+
+0.01
+
+=cut
+
+our $VERSION = '0.01';
+
+=head1 SYNOPSIS
+
+Used by Net::OAuth2::Moosey::Client.
+  
+  my $client = Net::OAuth2::Moosey::Client->new( %client_params );
+  my $token_object = $client->access_token_object();
+  my $access_token = $token_object->valid_access_token();
+
+=cut
+
+use Moose::Util::TypeConstraints;
 use JSON;
 use Carp;
 use URI::Escape;
 use YAML qw/LoadFile DumpFile Dump/;
 use MooseX::Types::URI qw(Uri FileUri DataUri);
 
+=head2 new
+
+=head3 ATTRIBUTES
+
+
+=over 2
+
+=item user_agent <LWP::UserAgent>
+
+See L<Net::OAuth2::Moosey::Client>
+
+=item client_id <Str>
+
+See L<Net::OAuth2::Moosey::Client>
+
+=item client_secret <Str>
+
+See L<Net::OAuth2::Moosey::Client>
+
+=item access_token_url <Uri>
+
+See L<Net::OAuth2::Moosey::Client>
+
+=item access_token <Str>
+
+The access token
+
+=item refresh_token <Str>
+
+The refresh token
+
+=item token_store <Str>
+
+See L<Net::OAuth2::Moosey::Client>
+
+=item token_type <Str>
+
+The token type as returned by your service provider. 
+
+=item expires_at <Int>
+
+The unix timestamp when the access token will expire
+
+=item expires_in <Int>
+
+Seconds until the access token will expire. Only really useful for setting an expiry time in the future,
+then use expires_at to test against.
+
+=back
+
+=cut
 has 'user_agent'        => ( is => 'ro', isa => 'LWP::UserAgent', required => 1              );
 has 'client_id'         => ( is => 'ro', isa => 'Str',                                       );
 has 'client_secret'     => ( is => 'ro', isa => 'Str',                                       );
@@ -25,7 +97,11 @@ has 'expires_in'        => ( is => 'rw', isa => 'Int',
     );
 
 
-# Returns a valid access token (refreshing if necessary)
+=head2 valid_access_token
+
+Returns a valid access token (refreshing if necessary)
+
+=cut
 sub valid_access_token {
     my $self = shift;
     if( $self->access_token and $self->expires_at and $self->expires_at > time() ){
@@ -68,7 +144,11 @@ sub valid_access_token {
 }
 
 
+=head2 to_string
 
+Create a string representation of this token
+
+=cut
 sub to_string {
     my $self = shift;
     my %hash;
@@ -78,10 +158,17 @@ sub to_string {
     return encode_json(\%hash);
 }
 
+=head2 sync_with_store
+
+Sync with the store file.
+First reads out the current data from the file, and then compares the current known data with that found
+in the file to identify which is the freshest.
+Writes the resulting freshest back to the store again for reuse next time.
+
+=cut
 sub sync_with_store {
     my $self = shift;
     if( not $self->token_store ){
-        warn( "No token_store defined\n" );
         return;
     }
     my $data;
@@ -96,12 +183,14 @@ sub sync_with_store {
         {
             $self->expires_at( $old_node->{expires_at} );
             $self->access_token( $old_node->{access_token} )    if $old_node->{access_token};
+	    $self->token_type( $old_node->{token_type} )	if $old_node->{token_type};
         }
         $self->refresh_token( $old_node->{refresh_token} ) if( not $self->refresh_token and $old_node->{refresh_token} );
     }
-    foreach( qw/refresh_token access_token expires_at/ ){
+    foreach( qw/refresh_token access_token expires_at token_type/ ){
         $data->{ $self->client_id }->{$_} = $self->$_ if $self->$_;
     }
+    # TODO: RCL 2011-11-03 Only write to file if the content is different to what was in the file
     DumpFile( $self->token_store, $data );
 }
 
@@ -111,11 +200,11 @@ Net::OAuth2::Moosey::AccessToken - OAuth Access Token
 
 =head1 SEE ALSO
 
-L<Net::OAuth>
+L<Net::OAuth::Moosey::Client>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2010 Keith Grennan.
+Copyright 2011 Robin Clarke
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published

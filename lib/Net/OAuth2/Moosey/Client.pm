@@ -13,6 +13,26 @@ Net::OAuth2::Moosey::Client - OAuth 2.0 client for perl
 
 our $VERSION = '0.01';
 
+=head1 DESCRIPTION
+
+This is a perl implementation of the OAuth 2.0 protocol.
+
+It is based on (forked from), and very similar in functionality to Keith Grennan's L<Net::OAuth2> module.
+
+The major differences to the original L<Net::OAuth2> module are:
+
+=over 2
+
+=item Converted to use Moose
+
+=item Named parameters for all methods
+
+=item More documentation
+
+=item No demo code for a web application
+
+=back
+
 =head1 SYNOPSIS
 
   use Net::OAuth2::Moosey::Client;
@@ -50,25 +70,154 @@ use MooseX::Types::URI qw(Uri FileUri DataUri);
 use MooseX::Log::Log4perl;
 use YAML;
 
+=head2 new
+
+=head3 ATTRIBUTES
+
+=over 2
+
+=item client_id <Str>
+
+ID for your application as given to you by your service provider.
+
+=item client_secret <Str>
+
+Secret for your application as given to you by your service provider.
+
+=item scope <Uri>
+
+Scope for which your are applying for access to.
+
+e.g. https://www.google.com/fusiontables/api/query
+
+=item site_url_base <Uri>
+
+Base url for OAuth.
+
+e.g. https://accounts.google.com/o/oauth2/auth
+
+=item access_token_url_base <Uri>
+
+Access token url.
+
+e.g. https://accounts.google.com/o/oauth2/token
+
+=item authorize_url_base <Uri>
+
+Authorize url.
+
+e.g. https://accounts.google.com/o/oauth2/auth
+
+=item access_token_path <Str>
+
+=item authorize_path <Str>
+
+The ..._path parameters are an alternative to their ..._url_base counterparts.
+If used, the authorize_url will be built from the site_url_base and the _path.
+
+=item refresh_token <Str>
+
+If known, the refresh token can be defined here
+If not, it will be determined during a request.
+
+=item access_token <Str>
+
+If known the access token can be defined here.
+If not, it will be determined during a request.
+
+=item access_code <Str>
+
+If known, the access code can be defined here.
+It is only necessary if you have not yet got an access/refresh token.
+If you are running in interactive mode (and access/refresh tokens are not defined),
+you will be given a URL to open in a browser and copy the resulting code to the command line.
+
+=item token_store <Str>
+
+Path to a file to store your tokens.
+This can be the same file for multiple services - it is a simple YAML file with one entry per
+client_id which stores your refresh and access tokens.
+
+=item redirect_uri <Str>
+
+Only needs to be defined if using the 'webserver' profile.  The page to which the service provider
+should redirect to after authorization.
+For instances using the 'application' profile, the default 'urn:ietf:wg:oauth:2.0:oob' is used.
+
+=item access_token_method <Str>
+
+GET or POST?
+
+Default: POST
+
+=item bearer_token_scheme <Str>
+
+Should be one of: auth-header, uri-query, form-body
+   
+Default: auth-header
+
+=item profile <Str>
+
+Are you using this module as a webserver (users browser is forwarded to the authorization urls, and they
+in turn redirect back to your redirect_uri), or as an application (interactively, no browser interaction
+for authorization possible)?
+
+Should be one of: application, webserver
+
+Default: application
+
+=item interactive <Bool>
+
+Are you running your program interactively (i.e. if necessary, do you want to have a prompt for, and paste
+the authorization code from your browser on the command line?).
+
+Options: 0, 1
+
+Default: 1
+
+=item keep_alive <Int>
+
+Should the LWP::UserAgent instance used have a connection cache, and how many connections should it cache?
+Turning off keep_alive can make interaction with your service provider very slow, especially if it is
+over an encrypted connection (which it should be).
+
+Default: 1 (try 2 if your service provider requires frequent authorization token refreshing)
+
+=item user_agent <LWP::UserAgent>
+
+It is not necessary to pass a UserAgent, but maybe you have a custom crafted instance which you want to reuse...
+
+=item access_token_object <Net::OAuth2::Moosey::AccessToken>
+
+The access token object which manages always having a fresh token ready for you.
+
+=back
+
+=cut
+
 has 'client_id'             => ( is => 'ro', isa => 'Str',                                           );
 has 'client_secret'         => ( is => 'ro', isa => 'Str',                                           );
 has 'scope'                 => ( is => 'ro', isa => Uri,     coerce => 1,                            );
 has 'site_url_base'         => ( is => 'ro', isa => Uri,     coerce => 1,                            );
 has 'access_token_url_base' => ( is => 'ro', isa => Uri,     coerce => 1,                            );
-has 'access_token_path'     => ( is => 'ro', isa => 'Str',                                           );
 has 'authorize_url_base'    => ( is => 'ro', isa => Uri,     coerce => 1,                            );
+
+has 'access_token_path'     => ( is => 'ro', isa => 'Str',                                           );
 has 'authorize_path'	    => ( is => 'ro', isa => 'Str',                                           );
 has 'refresh_token'         => ( is => 'ro', isa => 'Str',                                           );
 has 'access_token'          => ( is => 'ro', isa => 'Str',                                           );
-has 'access_code'           => ( is => 'ro', isa => 'Str',                                           );
+has 'access_code'           => ( is => 'rw', isa => 'Str',                                           );
 has 'token_store'           => ( is => 'ro', isa => 'Str',                                           );
-has 'redirect_uri'	    => ( is => 'ro', isa => Uri,    coerce => 1,			     );
-has 'grant_type'            => ( is => 'ro', isa => 'Str',  required => 1, default => 'refresh_token' );
+
+# TODO: RCL 2011-11-03 Test if is URI if profile eq 'webserver'
+has 'redirect_uri'	    => ( is => 'ro', isa => 'Str', required => 1, 
+                                 default => 'urn:ietf:wg:oauth:2.0:oob'                              );
+
 has 'access_token_method'   => ( is => 'ro', isa => 'Str',  required => 1, default => 'POST'         );
 has 'bearer_token_scheme'   => ( is => 'ro', isa => 'Str',  required => 1, default => 'auth-header'  );
 has 'profile'               => ( is => 'ro', isa => 'Str',  required => 1, default => 'application'  );
 has 'interactive'           => ( is => 'ro', isa => 'Bool', required => 1, default => 1              );
-has 'keep_alive'            => ( is => 'ro', isa => 'Int',  required => 1, default => 2              );
+has 'keep_alive'            => ( is => 'ro', isa => 'Int',  required => 1, default => 1              );
 
 has 'user_agent'            => ( 
     is          => 'ro', 
@@ -286,14 +435,11 @@ sub _authorize_params {
     $options{scope}         ||= $self->scope;
     $options{client_id}     ||= $self->client_id;
     $options{response_type} ||= 'code';
+    $options{redirect_uri}  ||= $self->redirect_uri;
     
     if( $self->profile eq 'webserver' ){
-        # TODO: RCL 2011-10-04 redirect_uri must be defined if profile eq 'webserver'
-        $options{redirect_uri}  ||= $self->redirect_uri;
         # legacy for pre v2.09 (37Signals)
         $options{type}          =   'web_server';
-    } else {
-        $options{redirect_uri}  = 'urn:ietf:wg:oauth:2.0:oob';
     }
     return %options;
 }
@@ -306,13 +452,13 @@ sub _access_token_params {
     $options{client_secret}     ||= $self->client_secret;
     $options{grant_type}        ||= 'authorization_code';
     $options{code}              = $self->access_code if $self->access_code;
+    $options{redirect_uri}  ||= $self->redirect_uri;
+
     if( $self->profile eq 'webserver' ){
-        $options{redirect_uri}  ||= $self->redirect_uri;
         # legacy for pre v2.09 (37Signals)
         $options{type}          = 'web_server';
-    } else {
-        $options{redirect_uri}  = 'urn:ietf:wg:oauth:2.0:oob';
     }
+    
     return %options;
 }
 
