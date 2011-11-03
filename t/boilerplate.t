@@ -49,7 +49,7 @@ TODO: {
     "placeholder date/time"       => qr(Date/time)
   );
 
-  module_boilerplate_ok('lib/Net/OAuth2.pm');
+  module_boilerplate_ok('lib/Net/OAuth2/Moosey/Client.pm');
 
 
 }

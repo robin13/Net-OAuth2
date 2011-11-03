@@ -65,7 +65,7 @@ my %params = (
 my @sites = keys %expected_result;
 my $tests = 1; # no warnings;
 foreach my $site_id (@sites) {
-    $tests += @{ $expected_result{$site_id}{authorize_url} } + @{ $expected_result{$site_id}{access_token_url} } + 3;
+    $tests += 2;
 }
 plan tests => $tests; 
 
@@ -82,31 +82,27 @@ $mock_ua->map(qr{.*}, sub {
 
 
 use Net::OAuth2::Moosey::Client;
-
+use File::Temp qw/tempfile tempdir/;
 use YAML qw(LoadFile);
 my $config = LoadFile('demo/config.yml');
 
 foreach my $site_id (@sites) {
-    my $client = client( $site_id );
-    
-    my $code = "abcd";
-    my $access_token =  client($site_id)->access_token->valid_access_token( @{$params{$site_id}});
-    
-    #	diag $access_token->to_string;
-    my $response = client($site_id)->get($config->{sites}{$site_id}{protected_resource_path});
-    ok($response->is_success, 'success');
+    my $token_store = File::Temp->new( UNLINK => 1 );
 
-    $response = client($site_id)->get('/path?field=value');
-    ok($response->is_success, 'success');
-}
-
-sub client {
-    my $site_id = shift;
-    Net::OAuth2::Moosey::Client->new( %{ $config->{sites}{$site_id} },
+    my $client = Net::OAuth2::Moosey::Client->new( %{ $config->{sites}{$site_id} },
 	redirect_uri		=> "http://cpan.org/got/$site_id",
 	access_token_method	=> 'GET',
 	profile			=> 'webserver',
+        token_store             => $token_store->filename,
 	);
+
+    my $access_token =  $client->access_token_object->valid_access_token( @{$params{$site_id}});
+    
+    #	diag $access_token->to_string;
+    my $response = $client->get($config->{sites}{$site_id}{protected_resource_path});
+    ok($response->is_success, 'success');
+
+    $response = $client->get('/path?field=value');
+    ok($response->is_success, 'success');
+    $token_store->close();
 }
-
-

@@ -1,9 +1,6 @@
 Makefile.PL
 Changes
-demo/.htaccess
-demo/app.psgi
 demo/config.yml
-demo/dispatch.cgi
 ignore.txt
 lib/Net/OAuth2/Moosey/AccessToken.pm
 lib/Net/OAuth2/Moosey/Client.pm

@@ -39,8 +39,8 @@ sub valid_access_token {
     my $headers = HTTP::Headers->new( Content_Type  => 'application/x-www-form-urlencoded'  );
     my $content = sprintf( "client_id=%s&" .
         "client_secret=%s&" .
-        "refresh_token=refresh_token" .
-        "grant_type=%s",
+        "refresh_token=%s&" .
+        "grant_type=refresh_token",
         $self->client_id,
         $self->client_secret,
         $self->refresh_token,
@@ -53,7 +53,8 @@ sub valid_access_token {
     );
     my $response = $self->user_agent->request( $request );
     if( not $response->is_success() ){
-        croak( "Could not refresh access token: " . $response->code );
+        print Dump( $response );
+        croak( sprintf "Could not refresh access token: %s/%s", $response->code, $response->title );
     }
     my $obj = eval{local $SIG{__DIE__}; decode_json($response->decoded_content)} || {};
     if( not $obj->{access_token} ){
@@ -80,7 +81,7 @@ sub to_string {
 sub sync_with_store {
     my $self = shift;
     if( not $self->token_store ){
-        print "No token_store defined\n";
+        warn( "No token_store defined\n" );
         return;
     }
     my $data;

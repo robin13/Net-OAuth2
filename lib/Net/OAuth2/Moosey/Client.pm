@@ -122,11 +122,11 @@ before 'new' => sub{
 
 sub _build_access_token_object {
     my $self = shift;
-    my %req_params = @_;
+    
     # Try to load an access token from the store first
     my $access_token = undef;
     my %token_params = ( client => $self );
-    foreach( qw/client_id client_secret access_token 
+    foreach( qw/client_id client_secret access_token access_code
         access_token_url refresh_token token_store user_agent/ ){
         $token_params{$_} = $self->$_ if $self->$_;
     }
@@ -136,9 +136,9 @@ sub _build_access_token_object {
         my $profile = $self->profile;        
 
         # Interactive applications need to supply a code
-        if( not $req_params{code} ){
+        if( not $self->access_code ){
             if( $self->profile ne 'application' ){
-                croak( "code required but not passed" );
+                croak( "access_code required but not available" );
             }
             printf "Please authorize your application with this URL\n%s\n",
                 $self->authorize_url();
@@ -149,15 +149,15 @@ sub _build_access_token_object {
             print "Code: ";
             my $code = <STDIN>;
             chomp( $code );
-            $req_params{code} = $code;
+            $self->access_code( $code );
         }
 
         my $request;
         if( $self->access_token_method eq 'POST' ){
-            $request = POST( $self->access_token_url(), { $self->_access_token_params( %req_params ) } );
+            $request = POST( $self->access_token_url(), { $self->_access_token_params() } );
         } else {
             $request = HTTP::Request->new(
-                $self->access_token_method => $self->access_token_url( $self->_access_token_params( %req_params ) ),
+                $self->access_token_method => $self->access_token_url( $self->_access_token_params() ),
                 );
         };
         
@@ -305,6 +305,7 @@ sub _access_token_params {
     $options{client_id}         ||= $self->client_id;
     $options{client_secret}     ||= $self->client_secret;
     $options{grant_type}        ||= 'authorization_code';
+    $options{code}              = $self->access_code if $self->access_code;
     if( $self->profile eq 'webserver' ){
         $options{redirect_uri}  ||= $self->redirect_uri;
         # legacy for pre v2.09 (37Signals)

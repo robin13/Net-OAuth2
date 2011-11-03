@@ -13,9 +13,7 @@ WriteMakefile(
       : ()),
     PL_FILES            => {},
     PREREQ_PM => {
-	'Crypt::SSLeay'			=> 0, # Easy way: libnet-ssleay-perl, else libssl-dev
 	'JSON'				=> 0,
-        'Data::Validate::URI'		=> 0,
         'Moose'				=> 0,
         'MooseX::Types::URI'		=> 0,
         'Test::Mock::LWP::Dispatch'	=> 0,
