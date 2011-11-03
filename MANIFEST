@@ -1,6 +1,7 @@
 Makefile.PL
 Changes
 demo/config.yml
+demo/fusion_tables_demo.pl
 ignore.txt
 lib/Net/OAuth2/Moosey/AccessToken.pm
 lib/Net/OAuth2/Moosey/Client.pm
