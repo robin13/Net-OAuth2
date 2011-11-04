@@ -29,10 +29,11 @@ use URI::Escape;
 use YAML qw/LoadFile DumpFile Dump/;
 use MooseX::Types::URI qw(Uri FileUri DataUri);
 
+=head1 METHODS
+
 =head2 new
 
 =head3 ATTRIBUTES
-
 
 =over 2
 
