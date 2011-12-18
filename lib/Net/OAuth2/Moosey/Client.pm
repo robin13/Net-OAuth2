@@ -7,11 +7,11 @@ Net::OAuth2::Moosey::Client - OAuth 2.0 client for perl
 
 =head1 VERSION
 
-0.02
+0.03
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 DESCRIPTION
 
@@ -199,7 +199,7 @@ The access token object which manages always having a fresh token ready for you.
 
 has 'client_id'             => ( is => 'ro', isa => 'Str',                                           );
 has 'client_secret'         => ( is => 'ro', isa => 'Str',                                           );
-has 'scope'                 => ( is => 'ro', isa => Uri,     coerce => 1,                            );
+has 'scope'                 => ( is => 'ro', isa => 'Str'                                            );
 has 'site_url_base'         => ( is => 'ro', isa => Uri,     coerce => 1,                            );
 has 'access_token_url_base' => ( is => 'ro', isa => Uri,     coerce => 1,                            );
 has 'authorize_url_base'    => ( is => 'ro', isa => Uri,     coerce => 1,                            );

@@ -1,0 +1,8 @@
+2011-12-12 from David Ashirov
+  It seems the store is keyed on the application’s identity instead of the OAuth principles.
+  In my case, I’m planning to access multiple user’s private data and would want to keep the
+  codes/tokens keyed by UserID ( retrieved via https://www.googleapis.com/auth/userinfo.profile
+  permission scope )
+
+TODO: RCL 2011-12-18 Agreed - the token_store is not very robust or flexible.  Should consider
+implementing a token store which allows more generice storage (Cache::XXX family?)
